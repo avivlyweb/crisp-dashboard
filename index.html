@@ -29,7 +29,6 @@
 body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;line-height:1.6;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.4;}
 
-/* Header */
 .header{background:linear-gradient(180deg,#0a0e1a 0%,var(--bg) 100%);padding:1.5rem 2rem 1rem;border-bottom:1px solid var(--border);position:relative;}
 .header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--hoac),var(--icf),var(--neuro),var(--clini),var(--bias),var(--lit),transparent);opacity:0.4;}
 .header-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;}
@@ -41,51 +40,113 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 .stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:0.25rem 0.7rem;font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--text-dim);display:flex;align-items:center;gap:0.4rem;}
 .stat-chip .val{color:var(--text);font-weight:600;}
 
-/* Navigation */
 .nav{display:flex;gap:0.25rem;padding:0 2rem;background:var(--surface);border-bottom:1px solid var(--border);}
 .nav-btn{padding:0.7rem 1.2rem;font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:600;color:var(--text-dim);background:none;border:none;cursor:pointer;position:relative;transition:color 0.3s;}
 .nav-btn:hover{color:var(--text);}
 .nav-btn.active{color:var(--text);}
 .nav-btn.active::after{content:'';position:absolute;bottom:0;left:0.5rem;right:0.5rem;height:2px;background:var(--hoac);border-radius:1px;}
 
-/* Content */
 .content{max-width:1440px;margin:0 auto;padding:1.5rem 2rem;}
 .panel{display:none;}
 .panel.active{display:block;}
 
-/* ===== NETWORK VIEW ===== */
-.network-container{position:relative;}
+/* ===== NETWORK SPLIT LAYOUT ===== */
+.network-split{display:grid;grid-template-columns:1fr 360px;gap:1rem;margin-bottom:1rem;}
 .network-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
 .network-header h2{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;}
+.replay-controls{display:flex;gap:0.5rem;align-items:center;}
 .replay-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.4rem 1rem;border-radius:8px;font-family:'Syne',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.3s;}
 .replay-btn:hover{background:var(--hoac);border-color:var(--hoac);}
 .replay-btn.playing{background:var(--reject);border-color:var(--reject);}
+.speed-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:0.3rem 0.6rem;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:0.7rem;cursor:pointer;transition:all 0.2s;}
+.speed-btn.active{color:var(--text);border-color:var(--hoac);background:rgba(77,143,255,0.15);}
 
 .network-svg-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:relative;}
 .network-svg-wrap svg{width:100%;height:auto;display:block;}
 
-/* Agent nodes */
-.agent-node{cursor:pointer;transition:transform 0.3s;}
-.agent-node:hover{transform:scale(1.08);}
+/* Agent node states */
+.agent-node{cursor:pointer;}
 .agent-glow{animation:pulse 3s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:0.15;}50%{opacity:0.35;}}
+@keyframes pulse{0%,100%{opacity:0.15;}50%{opacity:0.3;}}
 .node-label{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;fill:var(--text);text-anchor:middle;}
 .node-role{font-family:'Plus Jakarta Sans',sans-serif;font-size:8px;fill:var(--text-dim);text-anchor:middle;}
 
+.agent-node.speaking .agent-glow{animation:speakPulse 0.6s ease-in-out infinite;opacity:0.5;}
+.agent-node.speaking circle:nth-child(2){stroke-width:3;}
+@keyframes speakPulse{0%,100%{opacity:0.3;r:48;}50%{opacity:0.6;r:54;}}
+.agent-node.challenged .agent-glow{animation:challengeFlash 0.4s ease-out;opacity:0.6;}
+@keyframes challengeFlash{0%{opacity:0.8;r:56;}100%{opacity:0.3;r:48;}}
+.agent-node.responding .agent-glow{animation:respondPulse 0.5s ease-in-out infinite;}
+@keyframes respondPulse{0%,100%{opacity:0.3;}50%{opacity:0.55;}}
+.agent-node.dimmed{opacity:0.25;transition:opacity 0.5s;}
+.agent-node.active-agent{opacity:1;transition:opacity 0.3s;}
+
 /* Connection paths */
-.conn-path{fill:none;stroke-width:2;opacity:0.25;cursor:pointer;transition:opacity 0.3s,stroke-width 0.3s;}
-.conn-path:hover,.conn-path.active{opacity:0.9;stroke-width:3;}
+.conn-path{fill:none;stroke-width:2;opacity:0.15;cursor:pointer;transition:opacity 0.4s,stroke-width 0.3s;}
+.conn-path:hover,.conn-path.active{opacity:0.85;stroke-width:3;}
 .conn-path.animated{stroke-dasharray:8 4;animation:flowDash 1.5s linear infinite;}
 @keyframes flowDash{to{stroke-dashoffset:-24;}}
 .conn-count{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;fill:var(--bg);pointer-events:none;}
 .conn-count-bg{pointer-events:none;}
 
-/* Interaction detail panel */
+/* Data pulse */
+.data-pulse{filter:url(#glow);transition:r 0.2s;}
+
+/* ===== CHAT TRANSCRIPT ===== */
+.chat-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;max-height:520px;overflow:hidden;}
+.chat-header{padding:0.75rem 1rem;border-bottom:1px solid var(--border);font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;flex-shrink:0;}
+.chat-header .live-dot{width:8px;height:8px;border-radius:50%;background:var(--reject);animation:liveBlink 1.5s ease-in-out infinite;display:none;}
+.chat-header .live-dot.on{display:block;}
+@keyframes liveBlink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.chat-body{flex:1;overflow-y:auto;padding:0.75rem;scroll-behavior:smooth;}
+.chat-body::-webkit-scrollbar{width:3px;}
+.chat-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.chat-empty{text-align:center;padding:3rem 1rem;color:var(--text-muted);font-size:0.8rem;}
+.chat-empty p:first-child{font-size:1.5rem;margin-bottom:0.5rem;}
+
+.chat-msg{margin-bottom:0.75rem;animation:msgSlideIn 0.4s ease-out;}
+@keyframes msgSlideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.chat-msg-header{display:flex;align-items:center;gap:0.4rem;margin-bottom:0.2rem;}
+.chat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.chat-agent{font-family:'Syne',sans-serif;font-weight:700;font-size:0.72rem;}
+.chat-arrow{font-size:0.65rem;color:var(--text-muted);}
+.chat-target{font-family:'Syne',sans-serif;font-weight:600;font-size:0.72rem;color:var(--text-dim);}
+.chat-num{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--text-muted);}
+.chat-bubble{padding:0.5rem 0.7rem;border-radius:8px;font-size:0.76rem;line-height:1.5;margin-left:0.6rem;}
+.chat-bubble.challenge{background:rgba(255,75,87,0.06);border:1px solid rgba(255,75,87,0.12);border-left:2px solid;}
+.chat-bubble.response{background:rgba(0,232,143,0.04);border:1px solid rgba(0,232,143,0.1);border-left:2px solid var(--accept);}
+.chat-status{display:inline-block;padding:0.05rem 0.3rem;border-radius:3px;font-size:0.6rem;font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:0.25rem;}
+.chat-status.s-accepted{background:rgba(0,232,143,0.15);color:var(--accept);}
+.chat-status.s-partial{background:rgba(255,210,63,0.15);color:var(--partial);}
+.chat-status.s-rejected{background:rgba(255,71,87,0.15);color:var(--reject);}
+.chat-divider{text-align:center;padding:0.5rem;font-size:0.65rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;position:relative;margin:0.5rem 0;}
+.chat-divider::before,.chat-divider::after{content:'';position:absolute;top:50%;width:25%;height:1px;background:var(--border);}
+.chat-divider::before{left:5%;}
+.chat-divider::after{right:5%;}
+
+/* ===== TIMELINE SCRUBBER ===== */
+.timeline-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem;}
+.timeline-track{position:relative;height:32px;display:flex;align-items:center;margin-bottom:0.4rem;}
+.timeline-line{position:absolute;left:0;right:0;top:50%;height:2px;background:var(--border);transform:translateY(-50%);}
+.timeline-progress{position:absolute;left:0;top:50%;height:2px;background:var(--hoac);transform:translateY(-50%);transition:width 0.5s ease;border-radius:1px;}
+.timeline-dots{position:relative;display:flex;justify-content:space-between;width:100%;z-index:1;}
+.tl-dot{width:24px;height:24px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text-muted);cursor:pointer;transition:all 0.3s;position:relative;}
+.tl-dot:hover{border-color:var(--text-dim);color:var(--text);}
+.tl-dot.visited{border-color:var(--hoac);color:var(--hoac);background:rgba(77,143,255,0.1);}
+.tl-dot.current{border-color:var(--hoac);background:var(--hoac);color:#fff;transform:scale(1.2);box-shadow:0 0 12px rgba(77,143,255,0.4);}
+.tl-dot .tl-tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--surface3);border:1px solid var(--border);border-radius:6px;padding:0.25rem 0.5rem;font-size:0.6rem;white-space:nowrap;color:var(--text);pointer-events:none;}
+.tl-dot:hover .tl-tooltip{display:block;}
+.timeline-label{font-size:0.7rem;color:var(--text-dim);text-align:center;}
+
+/* Legend */
+.network-legend{display:flex;gap:1.5rem;margin-top:0.75rem;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:0.4rem;font-size:0.72rem;color:var(--text-dim);}
+.legend-dot{width:8px;height:8px;border-radius:50%;}
+
+/* Interaction detail panel (click mode) */
 .interaction-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;margin-top:1rem;overflow:hidden;max-height:0;transition:max-height 0.5s ease,opacity 0.3s;opacity:0;}
 .interaction-panel.open{max-height:2000px;opacity:1;}
 .interaction-panel-header{display:flex;align-items:center;gap:0.75rem;padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
-.interaction-panel-header .from-to{font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;}
-.interaction-panel-header .arrow-icon{font-size:1.2rem;color:var(--text-dim);}
 .close-panel{margin-left:auto;background:none;border:none;color:var(--text-dim);font-size:1.2rem;cursor:pointer;padding:0.25rem;}
 .close-panel:hover{color:var(--text);}
 .interaction-list{padding:0.75rem 1.25rem;}
@@ -99,11 +160,6 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 .status-accepted{background:rgba(0,232,143,0.15);color:var(--accept);}
 .status-rejected{background:rgba(255,71,87,0.15);color:var(--reject);}
 .status-partial{background:rgba(255,210,63,0.15);color:var(--partial);}
-
-/* Legend */
-.network-legend{display:flex;gap:1.5rem;margin-top:1rem;flex-wrap:wrap;}
-.legend-item{display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-dim);}
-.legend-dot{width:10px;height:10px;border-radius:50%;}
 
 /* ===== DEBATE VIEW ===== */
 .round-section{margin-bottom:2rem;}
@@ -155,15 +211,11 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 .hyp-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);margin-bottom:0.2rem;font-weight:600;}
 .oc-targets{margin-top:0.6rem;font-size:0.75rem;color:var(--text-dim);}
 .oc-targets strong{color:var(--text);}
-
-/* Decision Cascade */
 .cascade-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;overflow-x:auto;}
 .cascade-row{display:flex;align-items:stretch;margin-bottom:0.35rem;font-size:0.78rem;min-width:600px;}
 .cascade-wk{width:65px;flex-shrink:0;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--hoac);padding:0.4rem 0.5rem;display:flex;align-items:center;font-size:0.72rem;}
 .cascade-trigger{flex:1;background:var(--surface2);padding:0.4rem 0.7rem;border-radius:5px 0 0 5px;border-right:2px solid var(--hoac);font-size:0.75rem;}
 .cascade-action{flex:1;padding:0.4rem 0.7rem;background:rgba(77,143,255,0.05);border-radius:0 5px 5px 0;font-size:0.75rem;}
-
-/* Budget bars */
 .budget-item{margin-bottom:0.6rem;}
 .budget-meta{display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:0.2rem;}
 .budget-bar{height:22px;background:var(--surface2);border-radius:6px;overflow:hidden;}
@@ -183,8 +235,6 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 .q4{background:rgba(160,40,60,0.2);color:#fca5a5;}
 .qp{background:rgba(0,232,143,0.15);color:var(--accept);}
 .qn{background:rgba(255,71,87,0.15);color:var(--reject);}
-
-/* Evidence cards */
 .evidence-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem;}
 .ev-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem;}
 .ev-card h4{font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;margin-bottom:0.5rem;}
@@ -193,23 +243,20 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 .v-partial{background:rgba(255,210,63,0.15);color:var(--partial);}
 .ev-detail{font-size:0.75rem;color:var(--text-dim);margin-top:0.5rem;line-height:1.5;}
 .pmid{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--lit);}
-
-/* Measurement table */
 .measure-wrap{overflow-x:auto;}
 .mtable{width:100%;border-collapse:collapse;font-size:0.75rem;}
 .mtable th{text-align:left;padding:0.5rem;background:var(--surface2);border-bottom:2px solid var(--border);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;}
 .mtable td{padding:0.4rem 0.5rem;border-bottom:1px solid rgba(255,255,255,0.04);}
 .mtable tr:hover{background:rgba(77,143,255,0.03);}
-
-/* Consensus */
 .consensus-list{list-style:none;}
 .consensus-list li{padding:0.5rem 0.75rem;margin-bottom:0.3rem;border-radius:8px;font-size:0.8rem;display:flex;gap:0.5rem;align-items:flex-start;}
 .cons-item{background:rgba(0,232,143,0.05);border:1px solid rgba(0,232,143,0.1);}
 .dis-item{background:rgba(255,210,63,0.05);border:1px solid rgba(255,210,63,0.1);}
 .cons-icon{flex-shrink:0;width:18px;text-align:center;font-size:0.85rem;}
 
-/* Responsive */
-@media(max-width:768px){
+@media(max-width:900px){
+  .network-split{grid-template-columns:1fr;}
+  .chat-panel{max-height:300px;}
   .agent-cards{grid-template-columns:1fr;}
   .outcomes-grid{grid-template-columns:1fr;}
   .interaction-item{grid-template-columns:auto 1fr;}
@@ -223,15 +270,8 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 
 <div class="header">
   <div class="header-top">
-    <div>
-      <h1>CRISP Multi-Agent Clinical Reasoning</h1>
-    </div>
-    <div class="patient-badge">
-      <div>
-        <div class="name">Maria van den Berg</div>
-        <div class="detail">68F &middot; Left MCA stroke &middot; Day 12 &middot; Inpatient Rehab</div>
-      </div>
-    </div>
+    <div><h1>CRISP Multi-Agent Clinical Reasoning</h1></div>
+    <div class="patient-badge"><div><div class="name">Maria van den Berg</div><div class="detail">68F &middot; Left MCA stroke &middot; Day 12 &middot; Inpatient Rehab</div></div></div>
   </div>
   <div class="stats-strip">
     <div class="stat-chip"><span class="val">6</span> Agents</div>
@@ -257,44 +297,63 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 
 <!-- ===== NETWORK PANEL ===== -->
 <div id="network" class="panel active">
-  <div class="network-container">
-    <div class="network-header">
-      <h2>Agent Interaction Map</h2>
+  <div class="network-header">
+    <h2>Agent Interaction Map</h2>
+    <div class="replay-controls">
+      <button class="speed-btn active" data-speed="1" onclick="setSpeed(1)">1x</button>
+      <button class="speed-btn" data-speed="2" onclick="setSpeed(2)">2x</button>
+      <button class="speed-btn" data-speed="0.5" onclick="setSpeed(0.5)">0.5x</button>
       <button class="replay-btn" id="replayBtn" onclick="replayDebate()">&#9654; Replay Debate</button>
     </div>
-    <div class="network-svg-wrap">
-      <svg id="networkSvg" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <marker id="arrow-hoac" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--hoac)" opacity="0.7"/></marker>
-          <marker id="arrow-icf" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--icf)" opacity="0.7"/></marker>
-          <marker id="arrow-neuro" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--neuro)" opacity="0.7"/></marker>
-          <marker id="arrow-clini" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--clini)" opacity="0.7"/></marker>
-          <marker id="arrow-bias" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--bias)" opacity="0.7"/></marker>
-          <marker id="arrow-lit" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--lit)" opacity="0.7"/></marker>
-          <filter id="glow"><feGaussianBlur stdDeviation="8" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        </defs>
-        <!-- Background grid -->
-        <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="0.5"/></pattern>
-        <rect width="900" height="520" fill="url(#grid)"/>
-        <!-- Connections rendered by JS -->
-        <g id="connections"></g>
-        <!-- Count badges rendered by JS -->
-        <g id="countBadges"></g>
-        <!-- Agent nodes rendered by JS -->
-        <g id="agentNodes"></g>
-      </svg>
-    </div>
-    <div class="network-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:var(--hoac)"></div>HOAC-Coach</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--icf)"></div>ICF-Mapper</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--neuro)"></div>Neuro-Evidence</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--clini)"></div>Clinimetrics</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--bias)"></div>Bias-Reflector</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--lit)"></div>Literature Agent</div>
-      <div class="legend-item" style="margin-left:1rem;opacity:0.6;">Line thickness = number of interactions</div>
-    </div>
-    <div class="interaction-panel" id="interactionPanel"></div>
   </div>
+  <div class="network-split">
+    <div>
+      <div class="network-svg-wrap">
+        <svg id="networkSvg" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow-hoac" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#4d8fff" opacity="0.7"/></marker>
+            <marker id="arrow-icf" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#00e88f" opacity="0.7"/></marker>
+            <marker id="arrow-neuro" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ffd23f" opacity="0.7"/></marker>
+            <marker id="arrow-clini" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#bf6dff" opacity="0.7"/></marker>
+            <marker id="arrow-bias" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ff7b3a" opacity="0.7"/></marker>
+            <marker id="arrow-lit" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ff5ca1" opacity="0.7"/></marker>
+            <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="glowStrong"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="0.5"/></pattern>
+          <rect width="900" height="520" fill="url(#grid)"/>
+          <g id="connections"></g>
+          <g id="pulseLayer"></g>
+          <g id="countBadges"></g>
+          <g id="agentNodes"></g>
+        </svg>
+      </div>
+      <div class="network-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--hoac)"></div>HOAC-Coach</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--icf)"></div>ICF-Mapper</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--neuro)"></div>Neuro-Evidence</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--clini)"></div>Clinimetrics</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--bias)"></div>Bias-Reflector</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--lit)"></div>Literature Agent</div>
+      </div>
+    </div>
+    <div class="chat-panel">
+      <div class="chat-header"><div class="live-dot" id="liveDot"></div> Debate Transcript</div>
+      <div class="chat-body" id="chatBody">
+        <div class="chat-empty"><p>&#128172;</p><p>Click a connection or hit Replay<br>to watch the debate unfold</p></div>
+      </div>
+    </div>
+  </div>
+  <!-- Timeline -->
+  <div class="timeline-wrap" id="timelineWrap">
+    <div class="timeline-track">
+      <div class="timeline-line"></div>
+      <div class="timeline-progress" id="tlProgress"></div>
+      <div class="timeline-dots" id="tlDots"></div>
+    </div>
+    <div class="timeline-label" id="tlLabel">Click a dot to jump to an interaction</div>
+  </div>
+  <div class="interaction-panel" id="interactionPanel"></div>
 </div>
 
 <!-- ===== DEBATE PANEL ===== -->
@@ -302,147 +361,22 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
   <div class="round-section">
     <div class="round-title">Round 1 <span class="round-badge">Sequential &middot; Opening Positions</span></div>
     <div class="agent-cards">
-      <div class="agent-card" style="border-top:2px solid var(--hoac);">
-        <div class="agent-card-hdr" style="background:rgba(77,143,255,0.06);"><div class="agent-dot" style="background:var(--hoac)"></div><span class="agent-name">HOAC-Coach</span><span class="agent-role-tag">HOAC-II</span></div>
-        <div class="agent-card-body">
-          <p style="margin-bottom:0.5rem;font-weight:600;">4 Functional Problems:</p>
-          <div class="card-item card-new"><span class="tag tag-new">d450.3</span>Walking: BBS 24 as primary mediator. Exit: BBS 35. Competing: foot drop</div>
-          <div class="card-item card-new"><span class="tag tag-new">d445.4</span>UL Function: Flexor synergy dominance. ARAT 12/57. Exit: ARAT MCID 5.7</div>
-          <div class="card-item card-new"><span class="tag tag-new">d420.3</span>Transfers: Weight-shift deficit. 30+ STS reps/day</div>
-          <div class="card-item card-new"><span class="tag tag-new">d455.4</span>Stairs: Deferred until BBS 35+. Parallel-path strategy</div>
-          <p style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-dim);">Self-identified blind spots: cognitive deficits, fatigue management</p>
-        </div>
-      </div>
-      <div class="agent-card" style="border-top:2px solid var(--icf);">
-        <div class="agent-card-hdr" style="background:rgba(0,232,143,0.06);"><div class="agent-dot" style="background:var(--icf)"></div><span class="agent-name">ICF-Mapper</span><span class="agent-role-tag">ICF Framework</span></div>
-        <div class="agent-card-body">
-          <p style="margin-bottom:0.5rem;font-weight:600;">6 Challenges to HOAC-Coach:</p>
-          <div class="card-item card-critical"><span class="tag tag-reject">REJECTED</span>Goal #4 (shoulder flexion 90&deg;) &mdash; pure impairment, no d-code</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Missing b152 emotional functions &mdash; fear/self-efficacy not coded</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>e310 (Hans) needs dual coding: facilitator +3 AND barrier -1</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>e155 (stairs) needs time-gated decision points at week 3 and 5</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Missing d910, d230 participation codes</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Missing s-codes (s110.3 brain structure)</div>
-        </div>
-      </div>
-      <div class="agent-card" style="border-top:2px solid var(--neuro);">
-        <div class="agent-card-hdr" style="background:rgba(255,210,63,0.06);"><div class="agent-dot" style="background:var(--neuro)"></div><span class="agent-name">Neuro-Evidence</span><span class="agent-role-tag">Evidence Critique</span></div>
-        <div class="agent-card-body">
-          <div class="card-item card-critical"><span class="tag tag-critical">CRITICAL</span>Therapy ~110-140 min/day vs 180 min guideline &mdash; sub-therapeutic</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>UL: EPOS unfavorable, 25% chance. Need 300-400 reps/session</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Gait: need 1000-2000 steps/session, not time-based dosing</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Balance: 20 min subtherapeutic. Perturbation training early</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>STS: 30+ reps is floor. Evidence supports 50-100/day</div>
-          <p style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-dim);">Gaps: CV fitness, fatigue management, 24-hr rehab concept, spasticity</p>
-        </div>
-      </div>
-      <div class="agent-card" style="border-top:2px solid var(--clini);">
-        <div class="agent-card-hdr" style="background:rgba(191,109,255,0.06);"><div class="agent-dot" style="background:var(--clini)"></div><span class="agent-name">Clinimetrics</span><span class="agent-role-tag">Outcomes</span></div>
-        <div class="agent-card-body">
-          <div class="card-item card-critical"><span class="tag tag-critical">NON-NEGOTIABLE</span>FMA-UE must be added &mdash; ARAT subscores invalid for synergy tracking</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>MoCA must replace MMSE (more sensitive to attention/executive)</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Vague measures &mdash; every goal needs validated tool + MCID</div>
-          <div class="card-item card-new"><span class="tag tag-new">PROPOSED</span>Reassessment schedule: weeks 2, 4, 6 with triggered decisions</div>
-          <div class="card-item card-new"><span class="tag tag-new">PROPOSED</span>ICF-Measurement Crosswalk linking qualifiers to scores</div>
-          <p style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-dim);">Additions: Mini-BESTest, FIM, 5xSTS, TUG, 6MWT, MAL, BBT</p>
-        </div>
-      </div>
-      <div class="agent-card" style="border-top:2px solid var(--bias);">
-        <div class="agent-card-hdr" style="background:rgba(255,123,58,0.06);"><div class="agent-dot" style="background:var(--bias)"></div><span class="agent-name">Bias-Reflector</span><span class="agent-role-tag">Bias Detection</span></div>
-        <div class="agent-card-body">
-          <div class="card-item card-critical"><span class="tag tag-critical">DETECTED</span><strong>Motor bias:</strong> All 4 problems motor-framed. Missing psychosocial</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">FORCED</span>2+ competing hypotheses per problem incl. non-motor alternatives</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Attention (MMSE 25) may rate-limit motor learning more than weakness</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Hans as co-patient &mdash; needs formal capacity assessment</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>d445 qualifier .4 anchoring: &ldquo;complete = no point treating&rdquo;</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Linear recovery assumption &mdash; needs contingency plan</div>
-          <p style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-dim);">Biases: anchoring, confirmation, availability, premature closure</p>
-        </div>
-      </div>
-      <div class="agent-card" style="border-top:2px solid var(--lit);">
-        <div class="agent-card-hdr" style="background:rgba(255,92,161,0.06);"><div class="agent-dot" style="background:var(--lit)"></div><span class="agent-name">Literature Agent</span><span class="agent-role-tag">PubMed</span></div>
-        <div class="agent-card-body">
-          <p style="margin-bottom:0.5rem;font-weight:600;">6 Claims Validated:</p>
-          <div class="card-item card-challenge"><span class="tag tag-partial">PARTIAL</span>180 min/day &mdash; NICE yes, KNGF baseline lower</div>
-          <div class="card-item card-accept"><span class="tag tag-validated">VALIDATED</span>EPOS/PREP2 25% confirmed (PMID 20167916)</div>
-          <div class="card-item card-challenge"><span class="tag tag-partial">PARTIAL</span>1000-2000 steps &mdash; conservative; mean 2460 achieved</div>
-          <div class="card-item card-challenge"><span class="tag tag-partial">PARTIAL</span>300-400 UL reps &mdash; principle yes; threshold extrapolated</div>
-          <div class="card-item card-challenge"><span class="tag tag-partial">PARTIAL</span>Perturbation training &mdash; RR=0.71; mixed populations</div>
-          <div class="card-item card-challenge"><span class="tag tag-partial">PARTIAL</span>TCT &gt;50 predicts walking &mdash; valid but requires TCT+MI-LE</div>
-          <p style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-dim);">Key: several Neuro-Evidence numbers are extrapolations, not direct citations</p>
-        </div>
-      </div>
+      <div class="agent-card" style="border-top:2px solid var(--hoac);"><div class="agent-card-hdr" style="background:rgba(77,143,255,0.06);"><div class="agent-dot" style="background:var(--hoac)"></div><span class="agent-name">HOAC-Coach</span><span class="agent-role-tag">HOAC-II</span></div><div class="agent-card-body"><p style="margin-bottom:0.5rem;font-weight:600;">4 Functional Problems:</p><div class="card-item card-new"><span class="tag tag-new">d450.3</span>Walking: BBS 24 as primary mediator. Exit: BBS 35. Competing: foot drop</div><div class="card-item card-new"><span class="tag tag-new">d445.4</span>UL Function: Flexor synergy dominance. ARAT 12/57. Exit: ARAT MCID 5.7</div><div class="card-item card-new"><span class="tag tag-new">d420.3</span>Transfers: Weight-shift deficit. 30+ STS reps/day</div><div class="card-item card-new"><span class="tag tag-new">d455.4</span>Stairs: Deferred until BBS 35+. Parallel-path strategy</div></div></div>
+      <div class="agent-card" style="border-top:2px solid var(--icf);"><div class="agent-card-hdr" style="background:rgba(0,232,143,0.06);"><div class="agent-dot" style="background:var(--icf)"></div><span class="agent-name">ICF-Mapper</span><span class="agent-role-tag">ICF Framework</span></div><div class="agent-card-body"><p style="margin-bottom:0.5rem;font-weight:600;">6 Challenges to HOAC-Coach:</p><div class="card-item card-critical"><span class="tag tag-reject">REJECTED</span>Goal #4 (shoulder flexion 90&deg;) &mdash; pure impairment, no d-code</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Missing b152 emotional functions</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>e310 (Hans) needs dual coding</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>e155 needs time-gated decisions</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Missing d910, d230 participation codes</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Missing s-codes (s110.3)</div></div></div>
+      <div class="agent-card" style="border-top:2px solid var(--neuro);"><div class="agent-card-hdr" style="background:rgba(255,210,63,0.06);"><div class="agent-dot" style="background:var(--neuro)"></div><span class="agent-name">Neuro-Evidence</span><span class="agent-role-tag">Evidence Critique</span></div><div class="agent-card-body"><div class="card-item card-critical"><span class="tag tag-critical">CRITICAL</span>Therapy ~110-140 min/day vs 180 min guideline</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>UL: EPOS unfavorable, need 300-400 reps</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Gait: need 1000-2000 steps/session</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Balance: 20 min subtherapeutic</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>STS: evidence supports 50-100/day</div></div></div>
+      <div class="agent-card" style="border-top:2px solid var(--clini);"><div class="agent-card-hdr" style="background:rgba(191,109,255,0.06);"><div class="agent-dot" style="background:var(--clini)"></div><span class="agent-name">Clinimetrics</span><span class="agent-role-tag">Outcomes</span></div><div class="agent-card-body"><div class="card-item card-critical"><span class="tag tag-critical">NON-NEGOTIABLE</span>FMA-UE must be added</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>MoCA must replace MMSE</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Every goal needs validated tool + MCID</div><div class="card-item card-new"><span class="tag tag-new">PROPOSED</span>Reassessment schedule wk 2, 4, 6</div></div></div>
+      <div class="agent-card" style="border-top:2px solid var(--bias);"><div class="agent-card-hdr" style="background:rgba(255,123,58,0.06);"><div class="agent-dot" style="background:var(--bias)"></div><span class="agent-name">Bias-Reflector</span><span class="agent-role-tag">Bias Detection</span></div><div class="agent-card-body"><div class="card-item card-critical"><span class="tag tag-critical">DETECTED</span><strong>Motor bias:</strong> All 4 problems motor-framed</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Attention may rate-limit more than weakness</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>d445.4 anchoring: &ldquo;complete = no point&rdquo;</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Hans as co-patient needs assessment</div><div class="card-item card-challenge"><span class="tag tag-challenge">CHALLENGE</span>Linear recovery assumption</div></div></div>
+      <div class="agent-card" style="border-top:2px solid var(--lit);"><div class="agent-card-hdr" style="background:rgba(255,92,161,0.06);"><div class="agent-dot" style="background:var(--lit)"></div><span class="agent-name">Literature Agent</span><span class="agent-role-tag">PubMed</span></div><div class="agent-card-body"><p style="margin-bottom:0.5rem;font-weight:600;">6 Claims Validated:</p><div class="card-item card-challenge"><span class="tag tag-partial">PARTIAL</span>180 min/day &mdash; NICE yes, KNGF lower</div><div class="card-item card-accept"><span class="tag tag-validated">VALIDATED</span>EPOS/PREP2 25% confirmed</div><div class="card-item card-challenge"><span class="tag tag-partial">PARTIAL</span>1000-2000 steps &mdash; conservative</div><div class="card-item card-challenge"><span class="tag tag-partial">PARTIAL</span>300-400 UL reps &mdash; extrapolated</div><div class="card-item card-challenge"><span class="tag tag-partial">PARTIAL</span>Perturbation &mdash; mixed populations</div><div class="card-item card-challenge"><span class="tag tag-partial">PARTIAL</span>TCT &gt;50 &mdash; requires TCT+MI-LE</div></div></div>
     </div>
   </div>
-
   <div class="round-section">
-    <div class="round-title">Round 2 <span class="round-badge">Parallel &middot; Responses to Critiques</span></div>
+    <div class="round-title">Round 2 <span class="round-badge">Parallel &middot; Responses</span></div>
     <div class="agent-cards">
-      <div class="agent-card" style="border-top:2px solid var(--hoac);">
-        <div class="agent-card-hdr" style="background:rgba(77,143,255,0.06);"><div class="agent-dot" style="background:var(--hoac)"></div><span class="agent-name">HOAC-Coach R2</span><span class="agent-role-tag">16 accepted, 4 rejected</span></div>
-        <div class="agent-card-body">
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Goal #4 reframed to bimanual functional assist (d445/d660)</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>b152 as formal mediator + FES-I</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Hans capacity as testable hypothesis, week 3 gate</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Therapy budget revised to 180 min/day</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Step-count targets 500&rarr;2000 progressive</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>300+ UL reps/session</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>STS upgraded to 50-100/day</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Attention as cross-cutting mediator + MoCA</div>
-          <div class="card-item card-reject"><span class="tag tag-reject">REJECTED</span>Fixed 60/40 ratio &mdash; prefers data-driven via FMA-UE</div>
-          <div class="card-item card-reject"><span class="tag tag-reject">REJECTED</span>Standalone psychosocial problem &mdash; mediator unless PHQ-9 &ge;10</div>
-          <div class="card-item card-reject"><span class="tag tag-reject">REJECTED</span>Hans as &ldquo;co-patient&rdquo; &mdash; outside PT scope</div>
-          <div class="card-item card-reject"><span class="tag tag-reject">REJECTED</span>d620/d910 as inpatient goals &mdash; deferred to outpatient</div>
-        </div>
-      </div>
-      <div class="agent-card" style="border-top:2px solid var(--icf);">
-        <div class="agent-card-hdr" style="background:rgba(0,232,143,0.06);"><div class="agent-dot" style="background:var(--icf)"></div><span class="agent-name">ICF-Mapper R2</span><span class="agent-role-tag">7 accepted</span></div>
-        <div class="agent-card-body">
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>d445 split: capacity .3 / performance .4 (resolves anchoring)</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Full ICF-to-outcome-measure mapping table</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Stair config as environmental hypothesis (week 2 home assessment)</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>b152 elevated from .1 to .2</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Community ambulation as Phase 2 outpatient goal</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Capacity/performance distinction across all d-codes</div>
-          <div class="card-item card-challenge"><span class="tag tag-partial">PARTIAL</span>Identity disruption captured via b152, not standalone</div>
-        </div>
-      </div>
-      <div class="agent-card" style="border-top:2px solid var(--neuro);">
-        <div class="agent-card-hdr" style="background:rgba(255,210,63,0.06);"><div class="agent-dot" style="background:var(--neuro)"></div><span class="agent-name">Neuro-Evidence R2</span><span class="agent-role-tag">5 accepted, 1 maintained</span></div>
-        <div class="agent-card-body">
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Measurement framework for intensity-outcome link</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Self-efficacy interventions elevated to formal category</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Caregiver training elevated from footnote</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Spasticity decision tree: MAS 2 + functional interference &rarr; botulinum</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Proprioception as interacting mediator</div>
-          <div class="card-item card-reject"><span class="tag tag-reject">MAINTAINED</span>Motor training PRIMARY; psychological are essential adjuncts</div>
-        </div>
-      </div>
-      <div class="agent-card" style="border-top:2px solid var(--clini);">
-        <div class="agent-card-hdr" style="background:rgba(191,109,255,0.06);"><div class="agent-dot" style="background:var(--clini)"></div><span class="agent-name">Clinimetrics R2</span><span class="agent-role-tag">All accepted</span></div>
-        <div class="agent-card-body">
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>PHQ-9 for depression screening</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>FES-I for falls efficacy</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>SSEQ for self-efficacy</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>TMT-A/B for attention/executive function</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>CSI for caregiver strain (Hans)</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Structured spasticity monitoring protocol</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>ICF-Measurement Crosswalk</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">FLAGGED</span>Assessment burden: 17 measures &rarr; split across 2 sessions</div>
-        </div>
-      </div>
-      <div class="agent-card" style="border-top:2px solid var(--bias);">
-        <div class="agent-card-hdr" style="background:rgba(255,123,58,0.06);"><div class="agent-dot" style="background:var(--bias)"></div><span class="agent-name">Bias-Reflector R2</span><span class="agent-role-tag">Evaluation</span></div>
-        <div class="agent-card-body">
-          <div class="card-item card-accept"><span class="tag tag-accept">RESOLVED</span>d445 anchoring bias &mdash; capacity/performance split</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">RESOLVED</span>Hans dual-coding &mdash; ICF-Mapper + Clinimetrics CSI</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">LARGELY RESOLVED</span>Motor bias at coding level</div>
-          <div class="card-item card-accept"><span class="tag tag-accept">LARGELY RESOLVED</span>Confirmation bias in tests</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">NOT RESOLVED</span>Attention deficits not formalised as hypothesis</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">NEW</span>&ldquo;Dosage dogmatism&rdquo; &mdash; intensity must be individualized</div>
-          <div class="card-item card-challenge"><span class="tag tag-challenge">GAP</span>Spasticity monitoring lacks explicit MAS decision points</div>
-        </div>
-      </div>
+      <div class="agent-card" style="border-top:2px solid var(--hoac);"><div class="agent-card-hdr" style="background:rgba(77,143,255,0.06);"><div class="agent-dot" style="background:var(--hoac)"></div><span class="agent-name">HOAC-Coach R2</span><span class="agent-role-tag">16 accepted, 4 rejected</span></div><div class="agent-card-body"><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Goal #4 reframed to d445/d660</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>b152 as mediator + FES-I</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Hans wk 3 gate</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>180 min/day budget</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Step-count targets 500&rarr;2000</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>300+ UL reps</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>STS 50-100/day</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Attention mediator + MoCA</div><div class="card-item card-reject"><span class="tag tag-reject">REJECTED</span>Fixed 60/40 ratio</div><div class="card-item card-reject"><span class="tag tag-reject">REJECTED</span>Standalone psychosocial problem</div><div class="card-item card-reject"><span class="tag tag-reject">REJECTED</span>Hans as co-patient</div><div class="card-item card-reject"><span class="tag tag-reject">REJECTED</span>d620/d910 as inpatient goals</div></div></div>
+      <div class="agent-card" style="border-top:2px solid var(--icf);"><div class="agent-card-hdr" style="background:rgba(0,232,143,0.06);"><div class="agent-dot" style="background:var(--icf)"></div><span class="agent-name">ICF-Mapper R2</span><span class="agent-role-tag">7 accepted</span></div><div class="agent-card-body"><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>d445 split: cap .3 / perf .4</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>ICF-outcome mapping</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>b152 elevated .1&rarr;.2</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Cap/perf across all d-codes</div></div></div>
+      <div class="agent-card" style="border-top:2px solid var(--neuro);"><div class="agent-card-hdr" style="background:rgba(255,210,63,0.06);"><div class="agent-dot" style="background:var(--neuro)"></div><span class="agent-name">Neuro-Evidence R2</span><span class="agent-role-tag">5 accepted</span></div><div class="agent-card-body"><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Measurement framework</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Self-efficacy elevated</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Spasticity decision tree</div><div class="card-item card-reject"><span class="tag tag-reject">MAINTAINED</span>Motor training PRIMARY</div></div></div>
+      <div class="agent-card" style="border-top:2px solid var(--clini);"><div class="agent-card-hdr" style="background:rgba(191,109,255,0.06);"><div class="agent-dot" style="background:var(--clini)"></div><span class="agent-name">Clinimetrics R2</span><span class="agent-role-tag">All accepted</span></div><div class="agent-card-body"><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>PHQ-9, FES-I, SSEQ, TMT, CSI</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>Spasticity protocol</div><div class="card-item card-accept"><span class="tag tag-accept">ACCEPTED</span>ICF-Measurement Crosswalk</div><div class="card-item card-challenge"><span class="tag tag-challenge">FLAGGED</span>17 measures &rarr; split 2 sessions</div></div></div>
+      <div class="agent-card" style="border-top:2px solid var(--bias);"><div class="agent-card-hdr" style="background:rgba(255,123,58,0.06);"><div class="agent-dot" style="background:var(--bias)"></div><span class="agent-name">Bias-Reflector R2</span><span class="agent-role-tag">Evaluation</span></div><div class="agent-card-body"><div class="card-item card-accept"><span class="tag tag-accept">RESOLVED</span>d445 anchoring</div><div class="card-item card-accept"><span class="tag tag-accept">RESOLVED</span>Hans dual-coding</div><div class="card-item card-accept"><span class="tag tag-accept">LARGELY RESOLVED</span>Motor bias</div><div class="card-item card-challenge"><span class="tag tag-challenge">NOT RESOLVED</span>Attention not formalised</div><div class="card-item card-challenge"><span class="tag tag-challenge">NEW</span>&ldquo;Dosage dogmatism&rdquo;</div></div></div>
     </div>
   </div>
 </div>
@@ -451,89 +385,34 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 <div id="clinical" class="panel">
   <div class="section-title">Functional Problems</div>
   <div class="outcomes-grid">
-    <div class="outcome-card oc-walking">
-      <span class="icf-badge">d450.3 / .4</span>
-      <h3>Problem 1: Unable to Walk Independently</h3>
-      <div class="metrics-row">
-        <span class="metric">FAC <span class="v">2</span></span>
-        <span class="metric">BBS <span class="v">24/56</span></span>
-        <span class="metric">MI LL <span class="v">64</span></span>
-      </div>
-      <div class="hyp-box"><div class="hyp-label">Primary Hypothesis</div>Insufficient affected-limb weight acceptance during stance (balance + strength), not LL weakness alone</div>
-      <div class="hyp-box competing"><div class="hyp-label">Competing</div>Foot drop (dorsiflexion MRC 3) &mdash; test: compare FAC with/without AFO</div>
-      <div class="oc-targets"><strong>Target:</strong> FAC 4, BBS &gt;41, 50m independent by week 6<br><strong>Exit:</strong> BBS 35 &rarr; add challenges; 10MWT &lt;0.10 m/s gain at wk 2 &rarr; BWSTT</div>
-    </div>
-    <div class="outcome-card oc-ul">
-      <span class="icf-badge">d445 cap:.3 / perf:.4</span>
-      <h3>Problem 2: Unable to Use Right Hand</h3>
-      <div class="metrics-row">
-        <span class="metric">ARAT <span class="v">12/57</span></span>
-        <span class="metric">MI UL <span class="v">42</span></span>
-        <span class="metric">Grip <span class="v">MRC 1</span></span>
-        <span class="metric">PREP2 <span class="v">Limited</span></span>
-      </div>
-      <div class="hyp-box"><div class="hyp-label">Primary Hypothesis</div>Flexor synergy dominance preventing selective motor control + proprioceptive deficit as interacting mediator</div>
-      <div class="hyp-box competing"><div class="hyp-label">Competing</div>Learned non-use / psychological withdrawal &mdash; test: ARAT vs spontaneous use frequency</div>
-      <div class="oc-targets"><strong>PREP2:</strong> ~25% probability functional hand use<br><strong>Strategy:</strong> Data-driven via FMA-UE (no finger ext &rarr; 40/60)<br><strong>Exit:</strong> ARAT MCID 5.7 or FMA-UE MCID 5.25 at week 4</div>
-    </div>
-    <div class="outcome-card oc-transfer">
-      <span class="icf-badge">d420.3</span>
-      <h3>Problem 3: Unable to Transfer Independently</h3>
-      <div class="metrics-row">
-        <span class="metric">STS <span class="v">Mod Assist x1</span></span>
-        <span class="metric">Knee Ext <span class="v">MRC 4</span></span>
-        <span class="metric">TCT <span class="v">74</span></span>
-      </div>
-      <div class="hyp-box"><div class="hyp-label">Primary Hypothesis</div>Inadequate weight shift to right during STS &mdash; motor strategy deficit, not bilateral weakness</div>
-      <div class="hyp-box competing"><div class="hyp-label">Competing</div>Fear/low self-efficacy (b152) &mdash; test: FES-I score vs actual motor capacity</div>
-      <div class="oc-targets"><strong>Target:</strong> 50-100 STS reps/day; standby assist by wk 2<br><strong>Critical:</strong> Hans capacity assessment at week 3 (CSI + physical demo)</div>
-    </div>
-    <div class="outcome-card oc-stairs">
-      <span class="icf-badge">d455.4 / e155.-3</span>
-      <h3>Problem 4: Unable to Negotiate Stairs</h3>
-      <div class="metrics-row">
-        <span class="metric">Status <span class="v">Not assessed</span></span>
-        <span class="metric">Home <span class="v">12 steps</span></span>
-        <span class="metric">e155 <span class="v">Severe barrier</span></span>
-      </div>
-      <div class="hyp-box"><div class="hyp-label">Primary Hypothesis</div>BBS insufficient for single-limb stance on step &mdash; prerequisite balance not met</div>
-      <div class="hyp-box competing"><div class="hyp-label">Competing</div>1) Fear of falling (FES-I stair item) 2) Stair config non-negotiable (OT home assessment)</div>
-      <div class="oc-targets"><strong>Week 3:</strong> BBS &lt;30 &rarr; stairlift/bedroom relocation<br><strong>Week 5:</strong> Cannot do 4+ stairs with rail &rarr; confirm modification<br><strong>Strategy:</strong> Train stairs AND plan environmental mod simultaneously</div>
-    </div>
-    <div class="outcome-card oc-cross" style="grid-column:1/-1;">
-      <span class="icf-badge" style="background:rgba(255,92,161,0.12);color:var(--lit);">b164.1 + b152.2</span>
-      <h3>Cross-Cutting Mediators</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.5rem;font-size:0.8rem;">
-        <div><strong>Attention Deficits (b164.1)</strong><br>MMSE 25, distractible. Rate-limits motor learning across ALL problems. MoCA + TMT-A/B, 15-20 min session blocks, external cueing.</div>
-        <div><strong>Emotional Functions (b152.2)</strong><br>Fear of being a burden, low self-efficacy. Mediator for d420 + d455. PHQ-9 (if &ge;10 &rarr; standalone), FES-I, SSEQ, graded mastery.</div>
-      </div>
-    </div>
+    <div class="outcome-card oc-walking"><span class="icf-badge">d450.3/.4</span><h3>Problem 1: Unable to Walk Independently</h3><div class="metrics-row"><span class="metric">FAC <span class="v">2</span></span><span class="metric">BBS <span class="v">24/56</span></span><span class="metric">MI LL <span class="v">64</span></span></div><div class="hyp-box"><div class="hyp-label">Primary Hypothesis</div>Insufficient affected-limb weight acceptance during stance (balance + strength)</div><div class="hyp-box competing"><div class="hyp-label">Competing</div>Foot drop (dorsiflexion MRC 3) &mdash; test: FAC with/without AFO</div><div class="oc-targets"><strong>Target:</strong> FAC 4, BBS &gt;41, 50m by wk 6<br><strong>Exit:</strong> BBS 35 &rarr; add challenges; 10MWT &lt;0.10 &rarr; BWSTT</div></div>
+    <div class="outcome-card oc-ul"><span class="icf-badge">d445 cap:.3/perf:.4</span><h3>Problem 2: Unable to Use Right Hand</h3><div class="metrics-row"><span class="metric">ARAT <span class="v">12/57</span></span><span class="metric">MI UL <span class="v">42</span></span><span class="metric">PREP2 <span class="v">Limited</span></span></div><div class="hyp-box"><div class="hyp-label">Primary Hypothesis</div>Flexor synergy dominance + proprioceptive deficit as interacting mediator</div><div class="hyp-box competing"><div class="hyp-label">Competing</div>Learned non-use / psychological withdrawal</div><div class="oc-targets"><strong>PREP2:</strong> ~25% probability<br><strong>Exit:</strong> ARAT MCID 5.7 or FMA-UE 5.25 at wk 4</div></div>
+    <div class="outcome-card oc-transfer"><span class="icf-badge">d420.3</span><h3>Problem 3: Unable to Transfer</h3><div class="metrics-row"><span class="metric">STS <span class="v">Mod Assist</span></span><span class="metric">TCT <span class="v">74</span></span></div><div class="hyp-box"><div class="hyp-label">Primary</div>Inadequate weight shift to right during STS</div><div class="hyp-box competing"><div class="hyp-label">Competing</div>Fear/low self-efficacy (b152)</div><div class="oc-targets"><strong>Target:</strong> 50-100 STS/day; standby by wk 2<br><strong>Critical:</strong> Hans CSI at wk 3</div></div>
+    <div class="outcome-card oc-stairs"><span class="icf-badge">d455.4/e155.-3</span><h3>Problem 4: Stairs</h3><div class="metrics-row"><span class="metric">Status <span class="v">Not assessed</span></span><span class="metric">Home <span class="v">12 steps</span></span></div><div class="hyp-box"><div class="hyp-label">Primary</div>BBS insufficient for single-limb stance on step</div><div class="oc-targets"><strong>Wk 3:</strong> BBS &lt;30 &rarr; stairlift<br><strong>Wk 5:</strong> &lt;4 stairs &rarr; confirm mod<br><strong>Strategy:</strong> Train AND modify simultaneously</div></div>
+    <div class="outcome-card oc-cross" style="grid-column:1/-1;"><span class="icf-badge" style="background:rgba(255,92,161,0.12);color:var(--lit);">b164.1+b152.2</span><h3>Cross-Cutting Mediators</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.5rem;font-size:0.8rem;"><div><strong>Attention (b164.1)</strong><br>MMSE 25. Rate-limits motor learning. MoCA + TMT-A/B, 15-20 min blocks.</div><div><strong>Emotional (b152.2)</strong><br>Fear of being burden. PHQ-9 (&ge;10 &rarr; standalone), FES-I, SSEQ.</div></div></div>
   </div>
-
   <div class="section-title">Decision Cascade</div>
   <div class="cascade-wrap">
-    <div class="cascade-row"><div class="cascade-wk">WK 2</div><div class="cascade-trigger">Finger extension + FMA-UE &ge;20</div><div class="cascade-action">UL &rarr; 70/30 recovery/compensation</div></div>
-    <div class="cascade-row"><div class="cascade-wk">WK 2</div><div class="cascade-trigger">No finger ext + FMA-UE &lt;15</div><div class="cascade-action">UL &rarr; 40/60 (shift to 80/20 at wk 4)</div></div>
-    <div class="cascade-row"><div class="cascade-wk">WK 2</div><div class="cascade-trigger">FAC still 2 + 10MWT &lt;0.10 m/s gain</div><div class="cascade-action">Escalate to BWSTT; screen pusher/vestibular/fatigue</div></div>
-    <div class="cascade-row"><div class="cascade-wk">WK 2</div><div class="cascade-trigger">BBS change &lt;4 points</div><div class="cascade-action">Investigate: sensory? attention? fear? vestibular?</div></div>
-    <div class="cascade-row"><div class="cascade-wk">WK 3</div><div class="cascade-trigger">BBS &lt;30 + single-limb stance &lt;3s</div><div class="cascade-action">Initiate stairlift / bedroom relocation assessment</div></div>
-    <div class="cascade-row"><div class="cascade-wk">WK 3</div><div class="cascade-trigger">Hans CSI &ge;7 OR cannot demo standby assist</div><div class="cascade-action">Revise discharge: increase independence or arrange aide</div></div>
-    <div class="cascade-row"><div class="cascade-wk">WK 3</div><div class="cascade-trigger">MAS &ge;2 at wrist + functional interference</div><div class="cascade-action">Refer for botulinum toxin consultation</div></div>
-    <div class="cascade-row"><div class="cascade-wk">WK 3</div><div class="cascade-trigger">Trajectory BEHIND (BBS &lt;28, FAC 2, ARAT unchanged)</div><div class="cascade-action">Team meeting: audit dose, check attention/spasticity/medical</div></div>
-    <div class="cascade-row"><div class="cascade-wk">WK 4</div><div class="cascade-trigger">FMA-UE &lt;20 AND ARAT &lt;10</div><div class="cascade-action">Definitive shift to compensation-dominant UL</div></div>
-    <div class="cascade-row"><div class="cascade-wk">WK 4</div><div class="cascade-trigger">FMA-UE &gt;30 + grip MRC &ge;3</div><div class="cascade-action">Add modified CIMT; increase bimanual training</div></div>
-    <div class="cascade-row"><div class="cascade-wk">WK 5</div><div class="cascade-trigger">Cannot do 4+ stairs with rail + supervision</div><div class="cascade-action">Confirm stairlift/modification; do not delay discharge</div></div>
-    <div class="cascade-row"><div class="cascade-wk">WK 6</div><div class="cascade-trigger">Full battery + stair test + CSI</div><div class="cascade-action">Discharge decision</div></div>
+    <div class="cascade-row"><div class="cascade-wk">WK 2</div><div class="cascade-trigger">Finger ext + FMA-UE &ge;20</div><div class="cascade-action">UL &rarr; 70/30 recovery/comp</div></div>
+    <div class="cascade-row"><div class="cascade-wk">WK 2</div><div class="cascade-trigger">No finger ext + FMA-UE &lt;15</div><div class="cascade-action">UL &rarr; 40/60 (shift at wk 4)</div></div>
+    <div class="cascade-row"><div class="cascade-wk">WK 2</div><div class="cascade-trigger">FAC 2 + 10MWT &lt;0.10 gain</div><div class="cascade-action">Escalate BWSTT</div></div>
+    <div class="cascade-row"><div class="cascade-wk">WK 2</div><div class="cascade-trigger">BBS change &lt;4 pts</div><div class="cascade-action">Investigate: sensory/attention/fear</div></div>
+    <div class="cascade-row"><div class="cascade-wk">WK 3</div><div class="cascade-trigger">BBS &lt;30</div><div class="cascade-action">Stairlift assessment</div></div>
+    <div class="cascade-row"><div class="cascade-wk">WK 3</div><div class="cascade-trigger">Hans CSI &ge;7</div><div class="cascade-action">Revise discharge plan</div></div>
+    <div class="cascade-row"><div class="cascade-wk">WK 3</div><div class="cascade-trigger">MAS &ge;2 + interference</div><div class="cascade-action">Botulinum referral</div></div>
+    <div class="cascade-row"><div class="cascade-wk">WK 3</div><div class="cascade-trigger">Trajectory BEHIND</div><div class="cascade-action">Team meeting: audit dose</div></div>
+    <div class="cascade-row"><div class="cascade-wk">WK 4</div><div class="cascade-trigger">FMA-UE &lt;20 + ARAT &lt;10</div><div class="cascade-action">Compensation-dominant UL</div></div>
+    <div class="cascade-row"><div class="cascade-wk">WK 4</div><div class="cascade-trigger">FMA-UE &gt;30 + grip &ge;3</div><div class="cascade-action">Add modified CIMT</div></div>
+    <div class="cascade-row"><div class="cascade-wk">WK 5</div><div class="cascade-trigger">&lt;4 stairs with rail</div><div class="cascade-action">Confirm modification</div></div>
+    <div class="cascade-row"><div class="cascade-wk">WK 6</div><div class="cascade-trigger">Full battery + stair + CSI</div><div class="cascade-action">Discharge decision</div></div>
   </div>
-
   <div class="section-title">Therapy Budget: 180 min/day</div>
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;">
-    <div class="budget-item"><div class="budget-meta"><span>Gait Training (overground + BWSTT)</span><span>45 min &middot; 500-2000 steps</span></div><div class="budget-bar"><div class="budget-fill" style="width:25%;background:var(--hoac);">45</div></div></div>
-    <div class="budget-item"><div class="budget-meta"><span>Standing Balance</span><span>30 min &middot; perturbation + weight-shift</span></div><div class="budget-bar"><div class="budget-fill" style="width:16.7%;background:var(--neuro);">30</div></div></div>
-    <div class="budget-item"><div class="budget-meta"><span>STS / Transfer Practice</span><span>15 min &middot; 50-100 reps/day</span></div><div class="budget-bar"><div class="budget-fill" style="width:8.3%;background:var(--icf);">15</div></div></div>
-    <div class="budget-item"><div class="budget-meta"><span>UL Rehabilitation (35 therapist + 25 self)</span><span>60 min &middot; 300+ reps</span></div><div class="budget-bar"><div class="budget-fill" style="width:33.3%;background:var(--reject);">60</div></div></div>
-    <div class="budget-item"><div class="budget-meta"><span>ADL / Functional Task Practice</span><span>30 min &middot; bimanual + one-handed</span></div><div class="budget-bar"><div class="budget-fill" style="width:16.7%;background:var(--clini);">30</div></div></div>
-    <p style="margin-top:1rem;font-size:0.75rem;color:var(--text-dim);">Session blocks: 15-20 min (attention b164.1) &middot; CV: RPE Borg 6-20 (metoprolol blunts HR) &middot; 24h concept: nursing reinforces during ADL &middot; UL ratio: data-driven via FMA-UE</p>
+    <div class="budget-item"><div class="budget-meta"><span>Gait Training</span><span>45 min &middot; 500-2000 steps</span></div><div class="budget-bar"><div class="budget-fill" style="width:25%;background:var(--hoac);">45</div></div></div>
+    <div class="budget-item"><div class="budget-meta"><span>Standing Balance</span><span>30 min</span></div><div class="budget-bar"><div class="budget-fill" style="width:16.7%;background:var(--neuro);">30</div></div></div>
+    <div class="budget-item"><div class="budget-meta"><span>STS / Transfer</span><span>15 min &middot; 50-100 reps</span></div><div class="budget-bar"><div class="budget-fill" style="width:8.3%;background:var(--icf);">15</div></div></div>
+    <div class="budget-item"><div class="budget-meta"><span>UL Rehabilitation</span><span>60 min &middot; 300+ reps</span></div><div class="budget-bar"><div class="budget-fill" style="width:33.3%;background:var(--reject);">60</div></div></div>
+    <div class="budget-item"><div class="budget-meta"><span>ADL / Functional</span><span>30 min</span></div><div class="budget-bar"><div class="budget-fill" style="width:16.7%;background:var(--clini);">30</div></div></div>
   </div>
 </div>
 
@@ -541,417 +420,377 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 <div id="data" class="panel">
   <div class="section-title">ICF Map</div>
   <div class="data-grid">
-    <div class="icf-section"><h4 style="color:var(--hoac);">b Body Functions</h4>
-      <div class="icf-row"><span>b730 Muscle power</span><span class="q q3">.3</span></div>
-      <div class="icf-row"><span>b735 Muscle tone</span><span class="q q1">.1</span></div>
-      <div class="icf-row"><span>b760 Voluntary movement</span><span class="q q3">.3</span></div>
-      <div class="icf-row"><span>b770 Gait pattern</span><span class="q q3">.3</span></div>
-      <div class="icf-row"><span>b260 Proprioception</span><span class="q q2">.2</span></div>
-      <div class="icf-row"><span>b755 Balance reactions</span><span class="q q3">.3</span></div>
-      <div class="icf-row"><span>b164 Higher cognitive</span><span class="q q1">.1</span></div>
-      <div class="icf-row"><span>b320 Articulation</span><span class="q q1">.1</span></div>
-      <div class="icf-row"><span>b152 Emotional functions</span><span class="q q2">.2</span></div>
-    </div>
-    <div class="icf-section"><h4 style="color:var(--clini);">s Body Structures</h4>
-      <div class="icf-row"><span>s110 Brain structure</span><span class="q q3">.3</span></div>
-      <div class="icf-row"><span>s720 Shoulder region</span><span class="q q1">.1</span></div>
-      <div class="icf-row"><span>s750 Lower extremity</span><span class="q q2">.2</span></div>
-    </div>
-    <div class="icf-section"><h4 style="color:var(--icf);">d Activities</h4>
-      <div class="icf-row"><span>d410 Body position</span><span class="q q2">.2</span></div>
-      <div class="icf-row"><span>d420 Transferring</span><span class="q q3">.3</span></div>
-      <div class="icf-row"><span>d445 Hand/arm use</span><span><span class="q q3" style="margin-right:3px">.3</span><span class="q q4">.4</span></span></div>
-      <div class="icf-row"><span>d450 Walking</span><span><span class="q q3" style="margin-right:3px">.3</span><span class="q q4">.4</span></span></div>
-      <div class="icf-row"><span>d455 Stairs</span><span class="q q4">.4</span></div>
-      <div class="icf-row"><span>d510 Washing</span><span class="q q3">.3</span></div>
-      <div class="icf-row"><span>d540 Dressing</span><span class="q q3">.3</span></div>
-      <div class="icf-row"><span>d550 Eating</span><span class="q q2">.2</span></div>
-    </div>
-    <div class="icf-section"><h4 style="color:var(--neuro);">d Participation</h4>
-      <div class="icf-row"><span>d660 Assisting others</span><span class="q q4">.4</span></div>
-      <div class="icf-row"><span>d620 Shopping</span><span class="q q4">.4</span></div>
-      <div class="icf-row"><span>d920 Recreation</span><span class="q q4">.4</span></div>
-      <div class="icf-row"><span>d910 Community life</span><span class="q q4">.4</span></div>
-      <div class="icf-row"><span>d230 Daily routine</span><span class="q q3">.3</span></div>
-    </div>
-    <div class="icf-section"><h4 style="color:var(--lit);">e Environmental</h4>
-      <div class="icf-row"><span>e310 Husband Hans</span><span><span class="q qp">+3</span> <span class="q qn">-1</span></span></div>
-      <div class="icf-row"><span>e315 Extended family</span><span class="q qp">+3</span></div>
-      <div class="icf-row"><span>e155 Home (stairs)</span><span class="q qn">-3</span></div>
-      <div class="icf-row"><span>e120 Mobility equipment</span><span class="q qp">+2</span></div>
-      <div class="icf-row"><span>e580 Health services</span><span class="q qp">+2</span></div>
-      <div class="icf-row"><span>e115 Adaptive equipment</span><span class="q qp">+1</span></div>
-    </div>
-    <div class="icf-section"><h4>Personal Factors</h4>
-      <div class="icf-row"><span>Motivation</span><span style="color:var(--accept);font-weight:700;font-size:0.75rem;">High</span></div>
-      <div class="icf-row"><span>Fear of burden</span><span style="color:var(--reject);font-weight:700;font-size:0.75rem;">Present</span></div>
-      <div class="icf-row"><span>Self-efficacy</span><span style="color:var(--reject);font-weight:700;font-size:0.75rem;">Low</span></div>
-      <div class="icf-row"><span>Activity level</span><span style="color:var(--accept);font-weight:700;font-size:0.75rem;">Active</span></div>
-      <div class="icf-row"><span>Coping style</span><span style="color:var(--accept);font-weight:700;font-size:0.75rem;">Problem-focused</span></div>
-    </div>
+    <div class="icf-section"><h4 style="color:var(--hoac);">b Body Functions</h4><div class="icf-row"><span>b730 Muscle power</span><span class="q q3">.3</span></div><div class="icf-row"><span>b735 Muscle tone</span><span class="q q1">.1</span></div><div class="icf-row"><span>b760 Voluntary movement</span><span class="q q3">.3</span></div><div class="icf-row"><span>b770 Gait pattern</span><span class="q q3">.3</span></div><div class="icf-row"><span>b260 Proprioception</span><span class="q q2">.2</span></div><div class="icf-row"><span>b755 Balance</span><span class="q q3">.3</span></div><div class="icf-row"><span>b164 Higher cognitive</span><span class="q q1">.1</span></div><div class="icf-row"><span>b320 Articulation</span><span class="q q1">.1</span></div><div class="icf-row"><span>b152 Emotional</span><span class="q q2">.2</span></div></div>
+    <div class="icf-section"><h4 style="color:var(--clini);">s Body Structures</h4><div class="icf-row"><span>s110 Brain</span><span class="q q3">.3</span></div><div class="icf-row"><span>s720 Shoulder</span><span class="q q1">.1</span></div><div class="icf-row"><span>s750 Lower ext</span><span class="q q2">.2</span></div></div>
+    <div class="icf-section"><h4 style="color:var(--icf);">d Activities</h4><div class="icf-row"><span>d410 Body position</span><span class="q q2">.2</span></div><div class="icf-row"><span>d420 Transferring</span><span class="q q3">.3</span></div><div class="icf-row"><span>d445 Hand/arm</span><span><span class="q q3" style="margin-right:3px">.3</span><span class="q q4">.4</span></span></div><div class="icf-row"><span>d450 Walking</span><span><span class="q q3" style="margin-right:3px">.3</span><span class="q q4">.4</span></span></div><div class="icf-row"><span>d455 Stairs</span><span class="q q4">.4</span></div><div class="icf-row"><span>d510 Washing</span><span class="q q3">.3</span></div><div class="icf-row"><span>d540 Dressing</span><span class="q q3">.3</span></div><div class="icf-row"><span>d550 Eating</span><span class="q q2">.2</span></div></div>
+    <div class="icf-section"><h4 style="color:var(--neuro);">d Participation</h4><div class="icf-row"><span>d660 Assisting others</span><span class="q q4">.4</span></div><div class="icf-row"><span>d620 Shopping</span><span class="q q4">.4</span></div><div class="icf-row"><span>d920 Recreation</span><span class="q q4">.4</span></div><div class="icf-row"><span>d910 Community</span><span class="q q4">.4</span></div><div class="icf-row"><span>d230 Daily routine</span><span class="q q3">.3</span></div></div>
+    <div class="icf-section"><h4 style="color:var(--lit);">e Environmental</h4><div class="icf-row"><span>e310 Hans</span><span><span class="q qp">+3</span> <span class="q qn">-1</span></span></div><div class="icf-row"><span>e315 Family</span><span class="q qp">+3</span></div><div class="icf-row"><span>e155 Stairs</span><span class="q qn">-3</span></div><div class="icf-row"><span>e120 Mobility equip</span><span class="q qp">+2</span></div><div class="icf-row"><span>e580 Health services</span><span class="q qp">+2</span></div><div class="icf-row"><span>e115 Adaptive equip</span><span class="q qp">+1</span></div></div>
+    <div class="icf-section"><h4>Personal Factors</h4><div class="icf-row"><span>Motivation</span><span style="color:var(--accept);font-weight:700;font-size:0.75rem;">High</span></div><div class="icf-row"><span>Fear of burden</span><span style="color:var(--reject);font-weight:700;font-size:0.75rem;">Present</span></div><div class="icf-row"><span>Self-efficacy</span><span style="color:var(--reject);font-weight:700;font-size:0.75rem;">Low</span></div><div class="icf-row"><span>Activity level</span><span style="color:var(--accept);font-weight:700;font-size:0.75rem;">Active</span></div></div>
   </div>
-
-  <div class="section-title">Evidence Validation (Literature Agent)</div>
+  <div class="section-title">Evidence Validation</div>
   <div class="evidence-grid">
-    <div class="ev-card"><h4>180 min/day Intensity</h4><span class="verdict v-partial">PARTIAL</span><div class="ev-detail">NICE (UK, 2023), AHA/ASA 2016 <span class="pmid">PMID 27145936</span>. KNGF 2014 baseline is 2x20 min/weekday. ESO 2025 <span class="pmid">PMID 40401760</span> uses total dose. Ontario 2024 <span class="pmid">PMID 38078378</span> found 0% compliance.</div></div>
-    <div class="ev-card"><h4>EPOS/PREP2 UL Prognosis</h4><span class="verdict v-validated">VALIDATED</span><div class="ev-detail">Nijland 2010 <span class="pmid">PMID 20167916</span>: 25% probability dexterity at 6mo. Stinear 2017 <span class="pmid">PMID 29159193</span>: PREP2 validated. Lundquist 2021 <span class="pmid">PMID 33218284</span>: external validation confirmed.</div></div>
-    <div class="ev-card"><h4>1000-2000 Steps/Session</h4><span class="verdict v-partial">PARTIAL</span><div class="ev-detail">Hornby 2020 <span class="pmid">PMID 31834165</span> JNPT CPG. Moore 2023 <span class="pmid">PMID 36004813</span>: mean 2460 steps achieved. Limitation: Hornby CPG is chronic (&gt;6mo), not subacute.</div></div>
-    <div class="ev-card"><h4>300-400 UL Reps/Session</h4><span class="verdict v-partial">PARTIAL</span><div class="ev-detail">Lang 2009 <span class="pmid">PMID 19801058</span>: typical = 32 reps. Lang 2016 <span class="pmid">PMID 27447365</span>: individualized max best. Lohse 2014 <span class="pmid">PMID 24867924</span>: g=0.35. 300-400 extrapolated from animal models.</div></div>
-    <div class="ev-card"><h4>Perturbation Balance Training</h4><span class="verdict v-partial">PARTIAL</span><div class="ev-detail">Mansfield 2015 <span class="pmid">PMID 25524873</span>: RR=0.71 falls. Mansfield 2018 <span class="pmid">PMID 30121600</span>: chronic RCT. Handelzalts 2019 <span class="pmid">PMID 30767613</span>: subacute RCT. Mixed populations in 2015 review.</div></div>
-    <div class="ev-card"><h4>TCT &gt;50 Predicts Ambulation</h4><span class="verdict v-partial">PARTIAL</span><div class="ev-detail">Veerbeek 2011 <span class="pmid">PMID 21186329</span> EPOS: TCT-sitting + MI-LE = 97% probability. Requires combined measure, not TCT alone. Prediction at 72h for 6mo, not day 12.</div></div>
+    <div class="ev-card"><h4>180 min/day</h4><span class="verdict v-partial">PARTIAL</span><div class="ev-detail">NICE (UK), AHA/ASA 2016 <span class="pmid">PMID 27145936</span>. KNGF baseline lower. Ontario 2024: 0% compliance.</div></div>
+    <div class="ev-card"><h4>EPOS/PREP2</h4><span class="verdict v-validated">VALIDATED</span><div class="ev-detail">Nijland 2010 <span class="pmid">PMID 20167916</span>: 25% at 6mo. Stinear 2017 <span class="pmid">PMID 29159193</span>: PREP2 validated.</div></div>
+    <div class="ev-card"><h4>1000-2000 Steps</h4><span class="verdict v-partial">PARTIAL</span><div class="ev-detail">Hornby 2020 <span class="pmid">PMID 31834165</span>. Moore 2023: mean 2460. CPG is chronic, not subacute.</div></div>
+    <div class="ev-card"><h4>300-400 UL Reps</h4><span class="verdict v-partial">PARTIAL</span><div class="ev-detail">Lang 2009 <span class="pmid">PMID 19801058</span>: typical=32. Lohse 2014: g=0.35. Threshold extrapolated.</div></div>
+    <div class="ev-card"><h4>Perturbation Training</h4><span class="verdict v-partial">PARTIAL</span><div class="ev-detail">Mansfield 2015 <span class="pmid">PMID 25524873</span>: RR=0.71. Handelzalts 2019: subacute RCT.</div></div>
+    <div class="ev-card"><h4>TCT &gt;50 Predicts Walking</h4><span class="verdict v-partial">PARTIAL</span><div class="ev-detail">Veerbeek 2011 <span class="pmid">PMID 21186329</span> EPOS: requires TCT+MI-LE combined.</div></div>
   </div>
-
-  <div class="section-title">Measurement Plan (17 Measures)</div>
+  <div class="section-title">Measurement Plan (17)</div>
   <div class="measure-wrap" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0.5rem;">
-    <table class="mtable">
-      <thead><tr><th>Measure</th><th>Domain</th><th>Baseline</th><th>MCID</th><th>Schedule</th><th>Decision Link</th></tr></thead>
-      <tbody>
-        <tr><td><strong>FAC</strong></td><td>Gait</td><td>2</td><td>1 level</td><td>Weekly</td><td>FAC 3 triggers 10MWT</td></tr>
-        <tr><td><strong>BBS</strong></td><td>Balance</td><td>24</td><td>4-7 pts</td><td>Wk 2,4,6</td><td>Stair gate &ge;35</td></tr>
-        <tr><td><strong>Mini-BESTest</strong></td><td>Balance sub</td><td>TBD</td><td>3.5 pts</td><td>Wk 2,4,6</td><td>Identify bottleneck subsystem</td></tr>
-        <tr><td><strong>FMA-UE</strong></td><td>UL recovery</td><td>TBD</td><td>5.25 pts</td><td>Wk 2,4,6</td><td>Recovery/comp ratio</td></tr>
-        <tr><td><strong>ARAT</strong></td><td>UL function</td><td>12/57</td><td>5.7 pts</td><td>Wk 3,6</td><td>4-wk exit criterion</td></tr>
-        <tr><td><strong>MI</strong></td><td>Strength</td><td>UL42/LL64</td><td>&mdash;</td><td>Wk 2,4,6</td><td>Prognostic indicator</td></tr>
-        <tr><td><strong>MoCA</strong></td><td>Cognition</td><td>TBD</td><td>2 pts</td><td>Wk 4,6</td><td>Attention management</td></tr>
-        <tr><td><strong>TMT-A/B</strong></td><td>Attention</td><td>TBD</td><td>30%</td><td>Wk 4</td><td>Motor learning capacity</td></tr>
-        <tr><td><strong>FIM</strong></td><td>Overall</td><td>TBD</td><td>22 pts</td><td>Adm/Disch</td><td>Supplements Barthel</td></tr>
-        <tr><td><strong>Barthel</strong></td><td>ADL</td><td>45</td><td>~2 pts</td><td>Wk 2,4,6</td><td>Discharge &ge;75</td></tr>
-        <tr><td><strong>10MWT</strong></td><td>Gait speed</td><td>Assisted</td><td>0.16 m/s</td><td>From Day 1</td><td>&lt;0.10 gain wk2 &rarr; BWSTT</td></tr>
-        <tr><td><strong>PHQ-9</strong></td><td>Depression</td><td>TBD</td><td>5 pts</td><td>Base,wk4,disch</td><td>&ge;10: psych referral</td></tr>
-        <tr><td><strong>FES-I</strong></td><td>Falls efficacy</td><td>TBD</td><td>8 pts</td><td>Base,wk4,disch</td><td>&ge;28: falls intervention</td></tr>
-        <tr><td><strong>SSEQ</strong></td><td>Self-efficacy</td><td>TBD</td><td>&ge;10%</td><td>Wk 2,4,disch</td><td>Declining &rarr; motivational</td></tr>
-        <tr><td><strong>MAS</strong></td><td>Spasticity</td><td>E1/W1+/A1</td><td>&mdash;</td><td>Wk 2,3,4+</td><td>&ge;2+function &rarr; botulinum</td></tr>
-        <tr><td><strong>CSI</strong></td><td>Caregiver</td><td>TBD</td><td>&ge;7</td><td>Wk 3,disch</td><td>&ge;7: revise discharge</td></tr>
-        <tr><td><strong>6MWT</strong></td><td>Endurance</td><td>When FAC&ge;4</td><td>34.4m</td><td>Wk 4-6</td><td>&ge;205m limited; &ge;288m full community</td></tr>
-      </tbody>
-    </table>
+    <table class="mtable"><thead><tr><th>Measure</th><th>Domain</th><th>Baseline</th><th>MCID</th><th>Schedule</th><th>Decision</th></tr></thead><tbody>
+      <tr><td><strong>FAC</strong></td><td>Gait</td><td>2</td><td>1 level</td><td>Weekly</td><td>FAC 3&rarr;10MWT</td></tr>
+      <tr><td><strong>BBS</strong></td><td>Balance</td><td>24</td><td>4-7</td><td>Wk2,4,6</td><td>Stair &ge;35</td></tr>
+      <tr><td><strong>FMA-UE</strong></td><td>UL</td><td>TBD</td><td>5.25</td><td>Wk2,4,6</td><td>Recovery ratio</td></tr>
+      <tr><td><strong>ARAT</strong></td><td>UL func</td><td>12/57</td><td>5.7</td><td>Wk3,6</td><td>4-wk exit</td></tr>
+      <tr><td><strong>MoCA</strong></td><td>Cognition</td><td>TBD</td><td>2</td><td>Wk4,6</td><td>Attention</td></tr>
+      <tr><td><strong>10MWT</strong></td><td>Speed</td><td>Assisted</td><td>0.16</td><td>Day 1+</td><td>&lt;0.10&rarr;BWSTT</td></tr>
+      <tr><td><strong>PHQ-9</strong></td><td>Depression</td><td>TBD</td><td>5</td><td>Base,wk4</td><td>&ge;10 referral</td></tr>
+      <tr><td><strong>FES-I</strong></td><td>Falls</td><td>TBD</td><td>8</td><td>Base,wk4</td><td>&ge;28 intervene</td></tr>
+      <tr><td><strong>CSI</strong></td><td>Caregiver</td><td>TBD</td><td>&ge;7</td><td>Wk3,disch</td><td>Revise disch</td></tr>
+      <tr><td><strong>MAS</strong></td><td>Spasticity</td><td>E1/W1+/A1</td><td>&mdash;</td><td>Wk2,3,4+</td><td>&ge;2&rarr;botulinum</td></tr>
+    </tbody></table>
   </div>
-
   <div class="section-title">Consensus & Disagreements</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-    <div>
-      <h4 style="font-family:'Syne',sans-serif;font-size:0.9rem;margin-bottom:0.5rem;">11 Consensus Items</h4>
-      <ul class="consensus-list">
-        <li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>180 min/day therapy budget</li>
-        <li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>FMA-UE non-negotiable from baseline</li>
-        <li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>Step counts over time-based dosing (500&rarr;2000)</li>
-        <li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>b152 as formal mediator with FES-I + PHQ-9</li>
-        <li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>Hans capacity assessment wk 3 with CSI</li>
-        <li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>Week 3/5 stair decision gates</li>
-        <li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>MAS 2 + interference = botulinum referral</li>
-        <li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>Attention as mediator + MoCA replacing MMSE</li>
-        <li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>d445 capacity/performance split</li>
-        <li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>Goal #4 reframed to bimanual assist</li>
-        <li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>Week 3 non-linear contingency protocol</li>
-      </ul>
-    </div>
-    <div>
-      <h4 style="font-family:'Syne',sans-serif;font-size:0.9rem;margin-bottom:0.5rem;">4 Productive Disagreements</h4>
-      <ul class="consensus-list">
-        <li class="dis-item"><span class="cons-icon" style="color:var(--partial);">&#9888;</span><strong>Recovery/comp ratio:</strong> Neuro wants fixed 60/40; HOAC wants data-driven via FMA-UE. Resolved: HOAC adopted</li>
-        <li class="dis-item"><span class="cons-icon" style="color:var(--partial);">&#9888;</span><strong>b152 standalone:</strong> ICF/Bias want standalone; HOAC: mediator unless PHQ-9 &ge;10. Resolved: conditional</li>
-        <li class="dis-item"><span class="cons-icon" style="color:var(--partial);">&#9888;</span><strong>Motor primacy:</strong> Neuro: motor PRIMARY; Bias: co-equal psychosocial. Resolved: motor primary, psych essential adjuncts</li>
-        <li class="dis-item"><span class="cons-icon" style="color:var(--partial);">&#9888;</span><strong>Dosage dogmatism:</strong> Bias flags Neuro&apos;s intensity needs individual qualification. Resolved: qualified by attention+CV window</li>
-      </ul>
-      <h4 style="font-family:'Syne',sans-serif;font-size:0.9rem;margin:1rem 0 0.5rem;">6 Biases Corrected</h4>
-      <ul class="consensus-list">
-        <li class="cons-item"><span class="cons-icon">1</span>Motor bias &rarr; b152 mediator + psych measures</li>
-        <li class="cons-item"><span class="cons-icon">2</span>d445.4 anchoring &rarr; capacity/performance split</li>
-        <li class="cons-item"><span class="cons-icon">3</span>Dosage dogmatism &rarr; individual qualification</li>
-        <li class="cons-item"><span class="cons-icon">4</span>Confirmation bias &rarr; 5 psych/cognitive measures</li>
-        <li class="cons-item"><span class="cons-icon">5</span>Impairment goal &rarr; bimanual functional assist</li>
-        <li class="cons-item"><span class="cons-icon">6</span>Evidence imprecision &rarr; extrapolations qualified</li>
-      </ul>
-    </div>
+    <div><h4 style="font-family:'Syne',sans-serif;font-size:0.9rem;margin-bottom:0.5rem;">11 Consensus</h4><ul class="consensus-list"><li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>180 min/day budget</li><li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>FMA-UE non-negotiable</li><li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>Step counts over time</li><li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>b152 as mediator</li><li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>Hans CSI at wk 3</li><li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>Stair decision gates</li><li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>MAS 2 &rarr; botulinum</li><li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>MoCA replacing MMSE</li><li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>d445 cap/perf split</li><li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>Goal #4 reframed</li><li class="cons-item"><span class="cons-icon" style="color:var(--accept);">&#10003;</span>Wk 3 contingency</li></ul></div>
+    <div><h4 style="font-family:'Syne',sans-serif;font-size:0.9rem;margin-bottom:0.5rem;">4 Disagreements</h4><ul class="consensus-list"><li class="dis-item"><span class="cons-icon" style="color:var(--partial);">&#9888;</span><strong>Recovery ratio:</strong> data-driven via FMA-UE</li><li class="dis-item"><span class="cons-icon" style="color:var(--partial);">&#9888;</span><strong>b152:</strong> mediator unless PHQ-9 &ge;10</li><li class="dis-item"><span class="cons-icon" style="color:var(--partial);">&#9888;</span><strong>Motor primacy:</strong> primary + essential adjuncts</li><li class="dis-item"><span class="cons-icon" style="color:var(--partial);">&#9888;</span><strong>Dosage:</strong> qualified by individual factors</li></ul><h4 style="font-family:'Syne',sans-serif;font-size:0.9rem;margin:1rem 0 0.5rem;">6 Biases Corrected</h4><ul class="consensus-list"><li class="cons-item"><span class="cons-icon">1</span>Motor bias &rarr; b152 + psych measures</li><li class="cons-item"><span class="cons-icon">2</span>d445 anchoring &rarr; cap/perf split</li><li class="cons-item"><span class="cons-icon">3</span>Dosage dogmatism &rarr; individualized</li><li class="cons-item"><span class="cons-icon">4</span>Confirmation bias &rarr; 5 psych measures</li><li class="cons-item"><span class="cons-icon">5</span>Impairment goal &rarr; functional assist</li><li class="cons-item"><span class="cons-icon">6</span>Evidence imprecision &rarr; qualified</li></ul></div>
   </div>
 </div>
 
-</div><!-- /content -->
+</div>
 
 <script>
-// ===== DATA =====
-const AGENTS = {
-  hoac:  { name:'HOAC-Coach',     role:'HOAC-II Framework', color:'#4d8fff', x:450, y:72 },
-  icf:   { name:'ICF-Mapper',     role:'ICF Coding',        color:'#00e88f', x:710, y:165 },
-  neuro: { name:'Neuro-Evidence', role:'Evidence Critique',  color:'#ffd23f', x:710, y:355 },
-  clini: { name:'Clinimetrics',   role:'Measurements',      color:'#bf6dff', x:450, y:448 },
-  bias:  { name:'Bias-Reflector', role:'Bias Detection',    color:'#ff7b3a', x:190, y:355 },
-  lit:   { name:'Literature Agent',role:'PubMed Validation', color:'#ff5ca1', x:190, y:165 }
+const AGENTS={
+  hoac:{name:'HOAC-Coach',role:'HOAC-II Framework',color:'#4d8fff',x:450,y:72},
+  icf:{name:'ICF-Mapper',role:'ICF Coding',color:'#00e88f',x:710,y:165},
+  neuro:{name:'Neuro-Evidence',role:'Evidence Critique',color:'#ffd23f',x:710,y:355},
+  clini:{name:'Clinimetrics',role:'Measurements',color:'#bf6dff',x:450,y:448},
+  bias:{name:'Bias-Reflector',role:'Bias Detection',color:'#ff7b3a',x:190,y:355},
+  lit:{name:'Literature Agent',role:'PubMed Validation',color:'#ff5ca1',x:190,y:165}
 };
 
-const CONNECTIONS = [
-  { id:'icf-hoac', from:'icf', to:'hoac', items:[
-    {n:1, ch:'"Goal #4 is pure impairment — no d-code link"', re:'Accepts, reframes to d445 bimanual functional assist', st:'accepted'},
-    {n:2, ch:'"Missing b152 emotional functions — fear/self-efficacy not coded"', re:'Accepts b152 as formal mediator + adds FES-I measure', st:'accepted'},
-    {n:3, ch:'"Hans needs dual-coding e310 — facilitator AND barrier"', re:'Elevates to testable hypothesis with week 3 gate (CSI)', st:'accepted'},
+const CONNECTIONS=[
+  {id:'icf-hoac',from:'icf',to:'hoac',items:[
+    {n:1,ch:'Goal #4 is pure impairment \u2014 no d-code link. This should be rejected.',re:'Accepted. Reframing to d445 bimanual functional assist instead of impairment-level shoulder flexion goal.',st:'accepted'},
+    {n:2,ch:'Missing b152 emotional functions \u2014 fear of being a burden and low self-efficacy are not coded anywhere.',re:'Accepted. Adding b152.2 as formal mediator variable with FES-I as measurement instrument.',st:'accepted'},
+    {n:3,ch:'Hans needs dual-coding as e310: facilitator +3 AND barrier -1. His back problems make him a risk factor too.',re:'Accepted. Elevating Hans to testable hypothesis with week 3 gate: CSI \u22657 OR cannot demonstrate standby assist \u2192 revise discharge.',st:'accepted'},
   ]},
-  { id:'neuro-hoac', from:'neuro', to:'hoac', items:[
-    {n:4, ch:'"Intensity gap: 110-140 min/day vs 180 min guideline"', re:'Accepts, revises total therapy budget to 180 min/day', st:'accepted'},
-    {n:5, ch:'"Need step counts not time — 1000-2000 steps/session"', re:'Adds 500→2000 progressive step-count targets', st:'accepted'},
+  {id:'neuro-hoac',from:'neuro',to:'hoac',items:[
+    {n:4,ch:'Intensity gap is critical: your plan totals 110-140 min/day vs the 180 min guideline. This is sub-therapeutic.',re:'Accepted. Revising total therapy budget to 180 min/day minimum. Redistributing across all domains.',st:'accepted'},
+    {n:5,ch:'Time-based gait dosing is outdated. We need step counts: 1000-2000 steps/session with progressive targets.',re:'Accepted. Adding 500\u21922000 progressive step-count targets. Starting conservative given FAC 2.',st:'accepted'},
   ]},
-  { id:'neuro-icf', from:'neuro', to:'icf', items:[
-    {n:6, ch:'"Capacity vs performance distinction needed for d445"', re:'Creates d445 capacity .3 / performance .4 split (innovation)', st:'accepted'},
+  {id:'neuro-icf',from:'neuro',to:'icf',items:[
+    {n:6,ch:'Your d445 coding needs a capacity vs performance distinction. What can she do vs what does she do?',re:'Good point. Creating d445 capacity .3 / performance .4 split. This is an important distinction that resolves the anchoring concern too.',st:'accepted'},
   ]},
-  { id:'clini-hoac', from:'clini', to:'hoac', items:[
-    {n:7, ch:'"FMA-UE is NON-NEGOTIABLE for synergy tracking"', re:'Accepts FMA-UE from baseline assessment', st:'accepted'},
+  {id:'clini-hoac',from:'clini',to:'hoac',items:[
+    {n:7,ch:'FMA-UE is NON-NEGOTIABLE. ARAT subscores alone cannot track synergy stage progression. Add it from baseline.',re:'Accepted. Adding FMA-UE from baseline assessment. Will use for recovery/compensation ratio decisions.',st:'accepted'},
   ]},
-  { id:'clini-neuro', from:'clini', to:'neuro', items:[
-    {n:8, ch:'"FAC alone is insufficient for gait assessment"', re:'Accepts expanded measurement framework', st:'accepted'},
+  {id:'clini-neuro',from:'clini',to:'neuro',items:[
+    {n:8,ch:'FAC alone is insufficient for gait assessment. You need a multi-level measurement framework with MCIDs for each.',re:'Accepted. Incorporating the expanded measurement framework. FAC as screening, 10MWT/6MWT/BBS as detailed outcome tracking.',st:'accepted'},
   ]},
-  { id:'bias-hoac', from:'bias', to:'hoac', broadcast:true, items:[
-    {n:9, ch:'"Motor bias detected — all 4 problems motor-framed, missing psychosocial"', re:'ALL agents add psychological mediators (b152, FES-I, PHQ-9)', st:'accepted'},
+  {id:'bias-hoac',from:'bias',to:'hoac',broadcast:true,items:[
+    {n:9,ch:'MOTOR BIAS DETECTED across all agents. All 4 problems are motor-framed. Where are the psychological mediators? Fear, self-efficacy, attention \u2014 these may be driving limitations more than weakness.',re:'ALL agents respond: Adding psychological mediators (b152, FES-I, PHQ-9, SSEQ) across the plan. Bias-Reflector is right \u2014 this was a collective blind spot.',st:'accepted'},
   ]},
-  { id:'bias-neuro', from:'bias', to:'neuro', items:[
-    {n:10, ch:'"Dosage dogmatism — intensity must be individualized (MMSE 25, AF, age 68)"', re:'Partially accepts: qualifies by attention, cardiovascular, and age', st:'partial'},
+  {id:'bias-neuro',from:'bias',to:'neuro',items:[
+    {n:10,ch:'"Dosage dogmatism" \u2014 your 180 min and rep counts assume a standard patient. Maria has MMSE 25, atrial fibrillation, and is 68. Intensity must be individualized.',re:'Partially accepted. The evidence base supports high intensity, but will qualify: session blocks of 15-20 min for attention, RPE-guided for cardiovascular, with individual titration.',st:'partial'},
   ]},
-  { id:'bias-clini', from:'bias', to:'clini', items:[
-    {n:11, ch:'"Confirmation bias in test selection — motor-only measures"', re:'Adds PHQ-9, FES-I, SSEQ, TMT-A/B, CSI (5 psych measures)', st:'accepted'},
+  {id:'bias-clini',from:'bias',to:'clini',items:[
+    {n:11,ch:'Confirmation bias in test selection \u2014 all your measures are motor-focused. You\u2019re measuring what you expect to find.',re:'Accepted. Adding PHQ-9 (depression), FES-I (falls efficacy), SSEQ (self-efficacy), TMT-A/B (attention), and CSI (caregiver strain). Five psychological/cognitive measures.',st:'accepted'},
   ]},
-  { id:'bias-icf', from:'bias', to:'icf', items:[
-    {n:12, ch:'"d445.4 qualifier creates anchoring bias — complete = no point treating"', re:'Creates capacity/performance split, resolving anchoring bias', st:'accepted'},
+  {id:'bias-icf',from:'bias',to:'icf',items:[
+    {n:12,ch:'Your d445 qualifier of .4 (complete problem) creates anchoring bias. Clinicians may read it as "no point treating the arm."',re:'Creating capacity .3 / performance .4 split. This shows the arm HAS capacity (.3 = severe but not complete) while performance is worse (.4). Resolves the anchoring.',st:'accepted'},
   ]},
 ];
 
-// ===== NAVIGATION =====
-function showPanel(id) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+// Flatten for replay
+const FLAT=[];
+CONNECTIONS.forEach(c=>c.items.forEach(item=>FLAT.push({...item,connId:c.id,from:c.from,to:c.to,broadcast:c.broadcast})));
+FLAT.sort((a,b)=>a.n-b.n);
+
+// Path elements map
+const pathEls={};
+let activeConn=null;
+const R=36;
+let speedMultiplier=1;
+
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   event.currentTarget.classList.add('active');
 }
+function setSpeed(s){
+  speedMultiplier=s;
+  document.querySelectorAll('.speed-btn').forEach(b=>{b.classList.toggle('active',parseFloat(b.dataset.speed)===s);});
+}
 
-// ===== NETWORK RENDERING =====
-let activeConn = null;
-const R = 36; // node radius
+function init(){
+  const connG=document.getElementById('connections');
+  const badgeG=document.getElementById('countBadges');
+  const nodeG=document.getElementById('agentNodes');
 
-function init() {
-  const svg = document.getElementById('networkSvg');
-  const connG = document.getElementById('connections');
-  const badgeG = document.getElementById('countBadges');
-  const nodeG = document.getElementById('agentNodes');
+  CONNECTIONS.forEach((conn,idx)=>{
+    const from=AGENTS[conn.from],to=AGENTS[conn.to],count=conn.items.length;
+    const mx=(from.x+to.x)/2,my=(from.y+to.y)/2;
+    const dx=to.x-from.x,dy=to.y-from.y,len=Math.sqrt(dx*dx+dy*dy);
+    const nx=-dy/len,ny=dx/len;
+    const off=30+(idx%3)*12,side=idx%2===0?1:-1;
+    const cx=mx+nx*off*side,cy=my+ny*off*side;
+    const sa=Math.atan2(cy-from.y,cx-from.x),ea=Math.atan2(cy-to.y,cx-to.x);
+    const sx=from.x+Math.cos(sa)*(R+4),sy=from.y+Math.sin(sa)*(R+4);
+    const ex=to.x+Math.cos(ea)*(R+8),ey=to.y+Math.sin(ea)*(R+8);
+    const d=`M${sx},${sy} Q${cx},${cy} ${ex},${ey}`;
 
-  // Draw connections
-  CONNECTIONS.forEach((conn, idx) => {
-    const from = AGENTS[conn.from];
-    const to = AGENTS[conn.to];
-    const count = conn.items.length;
-
-    // Calculate curved path
-    const mx = (from.x + to.x) / 2;
-    const my = (from.y + to.y) / 2;
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    const len = Math.sqrt(dx*dx + dy*dy);
-    const nx = -dy / len;
-    const ny = dx / len;
-    // Offset for curve (alternate sides for visual clarity)
-    const offsetAmt = 30 + (idx % 3) * 10;
-    const side = idx % 2 === 0 ? 1 : -1;
-    const cx = mx + nx * offsetAmt * side;
-    const cy = my + ny * offsetAmt * side;
-
-    // Shorten path to not overlap nodes
-    const startAngle = Math.atan2(cy - from.y, cx - from.x);
-    const endAngle = Math.atan2(cy - to.y, cx - to.x);
-    const sx = from.x + Math.cos(startAngle) * (R + 4);
-    const sy = from.y + Math.sin(startAngle) * (R + 4);
-    const ex = to.x + Math.cos(endAngle) * (R + 8);
-    const ey = to.y + Math.sin(endAngle) * (R + 8);
-
-    // Hit area (wider, invisible)
-    const hit = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    hit.setAttribute('d', `M${sx},${sy} Q${cx},${cy} ${ex},${ey}`);
-    hit.setAttribute('fill', 'none');
-    hit.setAttribute('stroke', 'transparent');
-    hit.setAttribute('stroke-width', '18');
-    hit.setAttribute('cursor', 'pointer');
-    hit.addEventListener('click', () => toggleInteraction(conn));
-    hit.addEventListener('mouseenter', () => highlightConn(conn.id, true));
-    hit.addEventListener('mouseleave', () => { if(activeConn !== conn.id) highlightConn(conn.id, false); });
+    const hit=svgEl('path',{d,fill:'none',stroke:'transparent','stroke-width':18,cursor:'pointer'});
+    hit.addEventListener('click',()=>toggleInteraction(conn));
+    hit.addEventListener('mouseenter',()=>{if(activeConn!==conn.id)highlightConn(conn.id,true);});
+    hit.addEventListener('mouseleave',()=>{if(activeConn!==conn.id)highlightConn(conn.id,false);});
     connG.appendChild(hit);
 
-    // Visible path
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', `M${sx},${sy} Q${cx},${cy} ${ex},${ey}`);
-    path.setAttribute('class', 'conn-path');
-    path.setAttribute('stroke', from.color);
-    path.setAttribute('stroke-width', Math.max(1.5, count * 1.2));
-    path.setAttribute('marker-end', `url(#arrow-${conn.from})`);
-    path.setAttribute('data-conn', conn.id);
-    if(conn.broadcast) { path.setAttribute('stroke-dasharray', '6 4'); path.style.opacity = '0.35'; }
+    const path=svgEl('path',{d,class:'conn-path',stroke:from.color,'stroke-width':Math.max(1.5,count*1.2),'marker-end':`url(#arrow-${conn.from})`,'data-conn':conn.id});
+    if(conn.broadcast){path.setAttribute('stroke-dasharray','6 4');path.style.opacity='0.3';}
     connG.appendChild(path);
+    pathEls[conn.id]=path;
 
-    // Count badge at midpoint of curve
-    const bx = (sx + 2*cx + ex) / 4;
-    const by = (sy + 2*cy + ey) / 4;
-    if(count > 1) {
-      const bg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      bg.setAttribute('cx', bx); bg.setAttribute('cy', by); bg.setAttribute('r', '9');
-      bg.setAttribute('fill', from.color); bg.setAttribute('class', 'conn-count-bg');
-      bg.setAttribute('data-conn', conn.id);
-      badgeG.appendChild(bg);
-      const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      txt.setAttribute('x', bx); txt.setAttribute('y', by + 3.5);
-      txt.setAttribute('class', 'conn-count');
-      txt.setAttribute('data-conn', conn.id);
-      txt.textContent = count;
-      badgeG.appendChild(txt);
+    const bx=(sx+2*cx+ex)/4,by=(sy+2*cy+ey)/4;
+    if(count>1){
+      badgeG.appendChild(svgEl('circle',{cx:bx,cy:by,r:9,fill:from.color,class:'conn-count-bg','data-conn':conn.id}));
+      const t=svgEl('text',{x:bx,y:by+3.5,class:'conn-count','data-conn':conn.id});t.textContent=count;badgeG.appendChild(t);
     }
   });
 
-  // Draw agent nodes
-  Object.entries(AGENTS).forEach(([id, a]) => {
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('class', 'agent-node');
-    g.setAttribute('data-agent', id);
-
-    // Glow
-    const glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    glow.setAttribute('cx', a.x); glow.setAttribute('cy', a.y); glow.setAttribute('r', R + 12);
-    glow.setAttribute('fill', a.color); glow.setAttribute('opacity', '0.15');
-    glow.setAttribute('class', 'agent-glow');
-    glow.style.animationDelay = Math.random() * 3 + 's';
-    g.appendChild(glow);
-
-    // Main circle
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', a.x); circle.setAttribute('cy', a.y); circle.setAttribute('r', R);
-    circle.setAttribute('fill', '#0c1020'); circle.setAttribute('stroke', a.color);
-    circle.setAttribute('stroke-width', '2');
-    g.appendChild(circle);
-
-    // Inner accent
-    const inner = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    inner.setAttribute('cx', a.x); inner.setAttribute('cy', a.y); inner.setAttribute('r', R - 6);
-    inner.setAttribute('fill', 'none'); inner.setAttribute('stroke', a.color);
-    inner.setAttribute('stroke-width', '0.5'); inner.setAttribute('opacity', '0.3');
-    g.appendChild(inner);
-
-    // Name
-    const name = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    name.setAttribute('x', a.x); name.setAttribute('y', a.y + 1);
-    name.setAttribute('class', 'node-label');
-    // Abbreviate for node
-    const abbr = id === 'hoac' ? 'HOAC' : id === 'icf' ? 'ICF' : id === 'neuro' ? 'NEURO' : id === 'clini' ? 'CLINI' : id === 'bias' ? 'BIAS' : 'LIT';
-    name.textContent = abbr;
-    g.appendChild(name);
-
-    // Role below
-    const role = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    role.setAttribute('x', a.x); role.setAttribute('y', a.y + R + 16);
-    role.setAttribute('class', 'node-role');
-    role.textContent = a.role;
-    g.appendChild(role);
-
-    // Full name above
-    const full = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    full.setAttribute('x', a.x); full.setAttribute('y', a.y - R - 8);
-    full.setAttribute('class', 'node-role');
-    full.setAttribute('fill', a.color);
-    full.setAttribute('font-weight', '600');
-    full.textContent = a.name;
-    g.appendChild(full);
-
+  Object.entries(AGENTS).forEach(([id,a])=>{
+    const g=svgEl('g',{class:'agent-node','data-agent':id});
+    const glow=svgEl('circle',{cx:a.x,cy:a.y,r:R+12,fill:a.color,opacity:0.15,class:'agent-glow'});
+    glow.style.animationDelay=Math.random()*3+'s';g.appendChild(glow);
+    g.appendChild(svgEl('circle',{cx:a.x,cy:a.y,r:R,fill:'#0c1020',stroke:a.color,'stroke-width':2}));
+    g.appendChild(svgEl('circle',{cx:a.x,cy:a.y,r:R-6,fill:'none',stroke:a.color,'stroke-width':0.5,opacity:0.3}));
+    const nm=svgEl('text',{x:a.x,y:a.y+1,class:'node-label'});
+    nm.textContent={hoac:'HOAC',icf:'ICF',neuro:'NEURO',clini:'CLINI',bias:'BIAS',lit:'LIT'}[id];g.appendChild(nm);
+    const rl=svgEl('text',{x:a.x,y:a.y+R+16,class:'node-role'});rl.textContent=a.role;g.appendChild(rl);
+    const fn=svgEl('text',{x:a.x,y:a.y-R-8,class:'node-role',fill:a.color,'font-weight':'600'});fn.textContent=a.name;g.appendChild(fn);
     nodeG.appendChild(g);
   });
+
+  buildTimeline();
 }
 
-function highlightConn(connId, on) {
-  document.querySelectorAll(`[data-conn="${connId}"]`).forEach(el => {
-    if(el.classList.contains('conn-path')) {
-      if(on) { el.classList.add('active','animated'); }
-      else { el.classList.remove('active','animated'); }
+function svgEl(tag,attrs){
+  const el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  Object.entries(attrs||{}).forEach(([k,v])=>el.setAttribute(k,v));return el;
+}
+
+function highlightConn(id,on){
+  document.querySelectorAll(`.conn-path[data-conn="${id}"]`).forEach(el=>{
+    if(on){el.classList.add('active','animated');}else{el.classList.remove('active','animated');}
+  });
+}
+
+function setAgentState(agentId,state){
+  const node=document.querySelector(`[data-agent="${agentId}"]`);
+  if(!node)return;
+  node.classList.remove('speaking','challenged','responding','dimmed','active-agent');
+  if(state)node.classList.add(state);
+}
+function dimAllAgents(){Object.keys(AGENTS).forEach(id=>setAgentState(id,'dimmed'));}
+function resetAllAgents(){Object.keys(AGENTS).forEach(id=>setAgentState(id,null));}
+
+// Data pulse animation
+function sendPulse(connId,color,duration,reverse){
+  const path=pathEls[connId];if(!path)return Promise.resolve();
+  const layer=document.getElementById('pulseLayer');
+  const totalLen=path.getTotalLength();
+  return new Promise(resolve=>{
+    const c=svgEl('circle',{r:5,fill:color,class:'data-pulse',filter:'url(#glow)'});
+    const trail=svgEl('circle',{r:3,fill:color,opacity:0.4});
+    layer.appendChild(trail);layer.appendChild(c);
+    const start=performance.now();
+    function tick(now){
+      let p=(now-start)/duration;
+      if(p>=1){c.remove();trail.remove();resolve();return;}
+      if(reverse)p=1-p;
+      const pt=path.getPointAtLength(p*totalLen);
+      c.setAttribute('cx',pt.x);c.setAttribute('cy',pt.y);
+      const tp=path.getPointAtLength(Math.max(0,(p-0.08))*totalLen);
+      trail.setAttribute('cx',tp.x);trail.setAttribute('cy',tp.y);
+      requestAnimationFrame(tick);
     }
+    requestAnimationFrame(tick);
   });
 }
 
-function toggleInteraction(conn) {
-  const panel = document.getElementById('interactionPanel');
-  if(activeConn === conn.id) {
-    panel.classList.remove('open');
-    highlightConn(conn.id, false);
-    activeConn = null;
-    return;
+// Chat transcript
+function clearChat(){
+  document.getElementById('chatBody').innerHTML='<div class="chat-empty"><p>&#128172;</p><p>Click a connection or hit Replay<br>to watch the debate unfold</p></div>';
+}
+function addChatDivider(text){
+  const body=document.getElementById('chatBody');
+  const empty=body.querySelector('.chat-empty');if(empty)empty.remove();
+  const div=document.createElement('div');div.className='chat-divider';div.textContent=text;
+  body.appendChild(div);body.scrollTop=body.scrollHeight;
+}
+function addChatMessage(agentId,targetId,text,type,status){
+  const body=document.getElementById('chatBody');
+  const empty=body.querySelector('.chat-empty');if(empty)empty.remove();
+  const a=AGENTS[agentId];
+  const msg=document.createElement('div');msg.className='chat-msg';
+  let hdr=`<div class="chat-msg-header"><div class="chat-dot" style="background:${a.color}"></div><span class="chat-agent" style="color:${a.color}">${a.name}</span>`;
+  if(targetId){
+    const t=AGENTS[targetId];
+    hdr+=`<span class="chat-arrow">\u2192</span><span class="chat-target" style="color:${t?t.color:'#fff'}">${t?t.name:'ALL AGENTS'}</span>`;
   }
-  if(activeConn) { highlightConn(activeConn, false); }
-  activeConn = conn.id;
-  highlightConn(conn.id, true);
+  hdr+=`</div>`;
+  const bubbleClass=type==='challenge'?'challenge':'response';
+  const borderColor=type==='challenge'?a.color:'var(--accept)';
+  let statusHtml='';
+  if(status){
+    const sc=status==='accepted'?'s-accepted':status==='partial'?'s-partial':'s-rejected';
+    const sl=status==='accepted'?'ACCEPTED':status==='partial'?'PARTIALLY ACCEPTED':'REJECTED';
+    statusHtml=`<div><span class="chat-status ${sc}">${sl}</span></div>`;
+  }
+  msg.innerHTML=hdr+`<div class="chat-bubble ${bubbleClass}" style="border-left-color:${borderColor}">${text}${statusHtml}</div>`;
+  body.appendChild(msg);
+  body.scrollTop=body.scrollHeight;
+}
 
-  const from = AGENTS[conn.from];
-  const to = conn.broadcast ? null : AGENTS[conn.to];
-  const toName = conn.broadcast ? 'ALL AGENTS' : to.name;
-  const toColor = conn.broadcast ? '#fff' : to.color;
-
-  let html = `<div class="interaction-panel-header">
-    <span style="color:${from.color};font-weight:700;">${from.name}</span>
-    <span class="arrow-icon">&rarr;</span>
-    <span style="color:${toColor};font-weight:700;">${toName}</span>
-    <span style="margin-left:0.5rem;font-size:0.75rem;color:var(--text-dim);">${conn.items.length} interaction${conn.items.length>1?'s':''}</span>
-    <button class="close-panel" onclick="toggleInteraction({id:'${conn.id}'})">&times;</button>
-  </div><div class="interaction-list">`;
-
-  conn.items.forEach(item => {
-    const stClass = item.st === 'accepted' ? 'status-accepted' : item.st === 'partial' ? 'status-partial' : 'status-rejected';
-    const stLabel = item.st === 'accepted' ? 'ACCEPTED' : item.st === 'partial' ? 'PARTIAL' : 'REJECTED';
-    html += `<div class="interaction-item">
-      <div class="int-num">#${item.n}</div>
-      <div class="int-challenge">${item.ch}</div>
-      <div class="int-arrow">&rarr;</div>
-      <div class="int-response">${item.re}<br><span class="int-status ${stClass}">${stLabel}</span></div>
-    </div>`;
+// Timeline
+function buildTimeline(){
+  const dots=document.getElementById('tlDots');
+  FLAT.forEach((item,i)=>{
+    const dot=document.createElement('div');
+    dot.className='tl-dot';dot.dataset.idx=i;dot.textContent=item.n;
+    dot.innerHTML+=`<div class="tl-tooltip">${AGENTS[item.from].name} \u2192 ${item.to?AGENTS[item.to].name:'ALL'}</div>`;
+    dot.addEventListener('click',()=>jumpToInteraction(i));
+    dots.appendChild(dot);
   });
+}
+function updateTimeline(idx){
+  const dots=document.querySelectorAll('.tl-dot');
+  dots.forEach((d,i)=>{d.classList.remove('current','visited');if(i<idx)d.classList.add('visited');if(i===idx)d.classList.add('current');});
+  const pct=((idx+1)/FLAT.length)*100;
+  document.getElementById('tlProgress').style.width=pct+'%';
+  const item=FLAT[idx];
+  document.getElementById('tlLabel').textContent=`Interaction ${idx+1}/${FLAT.length}: ${AGENTS[item.from].name} \u2192 ${item.to?AGENTS[item.to].name:'ALL'}`;
+}
+function jumpToInteraction(idx){
+  if(replaying)stopReplay();
+  resetAllAgents();CONNECTIONS.forEach(c=>highlightConn(c.id,false));
+  clearChat();
+  // Show all messages up to idx
+  for(let i=0;i<=idx;i++){
+    const item=FLAT[i];
+    addChatMessage(item.from,item.to,item.ch,'challenge');
+    addChatMessage(item.to||item.from,null,item.re,'response',item.st);
+  }
+  const item=FLAT[idx];
+  highlightConn(item.connId,true);
+  activeConn=item.connId;
+  setAgentState(item.from,'speaking');
+  if(item.to)setAgentState(item.to,'responding');
+  updateTimeline(idx);
+}
 
-  html += '</div>';
-  panel.innerHTML = html;
+// Replay system
+let replaying=false,replayTimer=null,replayIdx=-1;
+function replayDebate(){
+  if(replaying){stopReplay();return;}
+  replaying=true;replayIdx=-1;
+  const btn=document.getElementById('replayBtn');
+  btn.classList.add('playing');btn.innerHTML='&#9632; Stop';
+  document.getElementById('liveDot').classList.add('on');
+  clearChat();dimAllAgents();
+  CONNECTIONS.forEach(c=>highlightConn(c.id,false));
+  activeConn=null;
+  addChatDivider('ROUND 1 \u2014 Opening Challenges');
+  nextReplayStep();
+}
+function stopReplay(){
+  replaying=false;clearTimeout(replayTimer);
+  const btn=document.getElementById('replayBtn');
+  btn.classList.remove('playing');btn.innerHTML='&#9654; Replay Debate';
+  document.getElementById('liveDot').classList.remove('on');
+  resetAllAgents();
+}
+async function nextReplayStep(){
+  if(!replaying)return;
+  // Clean up previous
+  if(replayIdx>=0){
+    const prev=FLAT[replayIdx];
+    highlightConn(prev.connId,false);
+    setAgentState(prev.from,'dimmed');
+    if(prev.to)setAgentState(prev.to,'dimmed');
+  }
+  replayIdx++;
+  if(replayIdx>=FLAT.length){
+    addChatDivider('DEBATE COMPLETE \u2014 11 consensus, 4 productive disagreements');
+    stopReplay();resetAllAgents();return;
+  }
+  // Round divider
+  if(replayIdx===9)addChatDivider('ROUND 2 \u2014 Responses & New Findings');
+
+  const item=FLAT[replayIdx];
+  const from=AGENTS[item.from],to=item.to?AGENTS[item.to]:null;
+
+  // 1. Source speaks
+  setAgentState(item.from,'speaking');
+  highlightConn(item.connId,true);
+  activeConn=item.connId;
+  updateTimeline(replayIdx);
+
+  // 2. Challenge message
+  addChatMessage(item.from,item.to,item.ch,'challenge');
+
+  // 3. Data pulse travels
+  const dur=800/speedMultiplier;
+  await sendPulse(item.connId,from.color,dur,false);
+  if(!replaying)return;
+
+  // 4. Target reacts
+  if(item.to)setAgentState(item.to,'challenged');
+  await sleep(300/speedMultiplier);
+  if(!replaying)return;
+  if(item.to)setAgentState(item.to,'responding');
+
+  // 5. Response pulse back
+  await sendPulse(item.connId,to?to.color:'#fff',dur,true);
+  if(!replaying)return;
+
+  // 6. Response message
+  addChatMessage(item.to||item.from,null,item.re,'response',item.st);
+  await sleep(600/speedMultiplier);
+  if(!replaying)return;
+
+  // 7. Schedule next
+  replayTimer=setTimeout(()=>nextReplayStep(),400/speedMultiplier);
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// Click interaction panel (non-replay)
+function toggleInteraction(conn){
+  const panel=document.getElementById('interactionPanel');
+  if(activeConn===conn.id){panel.classList.remove('open');highlightConn(conn.id,false);activeConn=null;return;}
+  if(activeConn)highlightConn(activeConn,false);
+  activeConn=conn.id;highlightConn(conn.id,true);
+  const from=AGENTS[conn.from],to=conn.broadcast?null:AGENTS[conn.to];
+  let html=`<div class="interaction-panel-header"><span style="color:${from.color};font-weight:700;">${from.name}</span><span style="font-size:1.2rem;color:var(--text-dim);">\u2192</span><span style="color:${to?to.color:'#fff'};font-weight:700;">${to?to.name:'ALL AGENTS'}</span><span style="margin-left:0.5rem;font-size:0.75rem;color:var(--text-dim);">${conn.items.length} interaction${conn.items.length>1?'s':''}</span><button class="close-panel" onclick="toggleInteraction({id:'${conn.id}'})">&times;</button></div><div class="interaction-list">`;
+  conn.items.forEach(item=>{
+    const sc=item.st==='accepted'?'status-accepted':item.st==='partial'?'status-partial':'status-rejected';
+    const sl=item.st==='accepted'?'ACCEPTED':item.st==='partial'?'PARTIAL':'REJECTED';
+    html+=`<div class="interaction-item"><div class="int-num">#${item.n}</div><div class="int-challenge">${item.ch}</div><div class="int-arrow">\u2192</div><div class="int-response">${item.re}<br><span class="int-status ${sc}">${sl}</span></div></div>`;
+  });
+  panel.innerHTML=html+'</div>';
   panel.classList.add('open');
-  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  // Also show in chat
+  const chatBody=document.getElementById('chatBody');
+  const empty=chatBody.querySelector('.chat-empty');if(empty)empty.remove();
+  conn.items.forEach(item=>{
+    addChatMessage(conn.from,conn.to,item.ch,'challenge');
+    addChatMessage(conn.to||conn.from,null,item.re,'response',item.st);
+  });
 }
 
-// ===== REPLAY =====
-let replaying = false;
-let replayTimer = null;
-function replayDebate() {
-  const btn = document.getElementById('replayBtn');
-  if(replaying) {
-    clearTimeout(replayTimer);
-    replaying = false;
-    btn.classList.remove('playing');
-    btn.innerHTML = '&#9654; Replay Debate';
-    CONNECTIONS.forEach(c => highlightConn(c.id, false));
-    const panel = document.getElementById('interactionPanel');
-    panel.classList.remove('open');
-    activeConn = null;
-    return;
-  }
-  replaying = true;
-  btn.classList.add('playing');
-  btn.innerHTML = '&#9632; Stop';
-  CONNECTIONS.forEach(c => highlightConn(c.id, false));
-
-  let i = 0;
-  function step() {
-    if(i > 0) highlightConn(CONNECTIONS[i-1].id, false);
-    if(i >= CONNECTIONS.length) {
-      replaying = false;
-      btn.classList.remove('playing');
-      btn.innerHTML = '&#9654; Replay Debate';
-      return;
-    }
-    const conn = CONNECTIONS[i];
-    highlightConn(conn.id, true);
-    activeConn = conn.id;
-    // Show interaction panel
-    toggleInteraction(conn);
-    highlightConn(conn.id, true); // re-highlight after toggle
-    activeConn = conn.id;
-    i++;
-    replayTimer = setTimeout(step, 2500);
-  }
-  step();
-}
-
-// Initialize on load
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
